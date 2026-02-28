@@ -19,14 +19,32 @@ const formatDate = (ts: string) => {
   });
 };
 
-const statusConfig: Record<Transaction['status'], { label: string; cls: string }> = {
-  completed: { label: 'Completed', cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
-  cancelled: { label: 'Cancelled', cls: 'bg-[#9CA3AF]/10 text-[#9CA3AF] border-[#4B5563]' },
-  blocked:   { label: 'Blocked',   cls: 'bg-red-500/15 text-red-400 border-red-500/30' },
+const statusConfig: Record<
+  Transaction['status'],
+  { label: string; color: string; bg: string; border: string }
+> = {
+  completed: {
+    label: 'Completed',
+    color: '#00FF87',
+    bg: 'rgba(0,255,135,0.08)',
+    border: 'rgba(0,255,135,0.25)',
+  },
+  cancelled: {
+    label: 'Cancelled',
+    color: '#9CA3AF',
+    bg: 'rgba(156,163,175,0.07)',
+    border: 'rgba(156,163,175,0.2)',
+  },
+  blocked: {
+    label: 'Blocked',
+    color: '#EF4444',
+    bg: 'rgba(239,68,68,0.08)',
+    border: 'rgba(239,68,68,0.25)',
+  },
 };
 
-const leftBorderClass: Record<'LOW' | 'MEDIUM' | 'HIGH', string> = {
-  LOW:    'border-l-[3px] border-l-[#10B981]',
+const leftBorderStyle: Record<'LOW' | 'MEDIUM' | 'HIGH', string> = {
+  LOW:    'border-l-[3px] border-l-[#00FF87]',
   MEDIUM: 'border-l-[3px] border-l-[#F59E0B]',
   HIGH:   'border-l-[3px] border-l-[#EF4444]',
 };
@@ -42,7 +60,13 @@ const ChevronUp = () => (
   </svg>
 );
 const EmptyIcon = () => (
-  <svg className="w-14 h-14 text-[#1E2D45]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
+  <svg
+    className="w-14 h-14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="rgba(0,255,135,0.15)"
+    strokeWidth="1.4"
+  >
     <rect x="3" y="3" width="18" height="18" rx="2" />
     <line x1="3" y1="9" x2="21" y2="9" />
     <line x1="3" y1="15" x2="21" y2="15" />
@@ -68,14 +92,14 @@ const History: React.FC = () => {
   useEffect(() => {
     getHistory()
       .then(setTransactions)
-      .catch(() => setError('Failed to load transaction history.'))
+      .catch(() => setError('Failed to load transaction history. Is the backend running?'))
       .finally(() => setLoading(false));
   }, []);
 
   const filtered = transactions.filter((t) => {
     if (tab === 'safe')    return t.riskResult.level === 'LOW';
     if (tab === 'flagged') return t.riskResult.level === 'MEDIUM';
-    if (tab === 'blocked') return t.status === 'blocked';
+    if (tab === 'blocked') return t.status === 'blocked' || t.riskResult.level === 'HIGH';
     return true;
   });
 
@@ -87,62 +111,99 @@ const History: React.FC = () => {
     });
   };
 
+  const counts = {
+    all:     transactions.length,
+    safe:    transactions.filter(t => t.riskResult.level === 'LOW').length,
+    flagged: transactions.filter(t => t.riskResult.level === 'MEDIUM').length,
+    blocked: transactions.filter(t => t.status === 'blocked' || t.riskResult.level === 'HIGH').length,
+  };
+
   return (
-    <div className="min-h-screen bg-[#0A0F1E] px-4 sm:px-6 lg:px-8 py-10">
-      <div className="max-w-5xl mx-auto">
-        {/* ── Page heading ── */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-[#F9FAFB] tracking-tight">
-            Transaction History
-          </h1>
-          <p className="mt-1 text-sm text-[#9CA3AF]">
-            Review all your past UPI transactions and their risk assessments.
-          </p>
-        </div>
+    <div className="min-h-screen" style={{ background: '#040D0A' }}>
 
-        {/* ── Filter tabs ── */}
-        <div className="flex flex-wrap gap-2 mb-6 border-b border-[#1E2D45] pb-4">
-          {TABS.map(({ key, label }) => {
-            const count =
-              key === 'all'     ? transactions.length
-              : key === 'safe'  ? transactions.filter(t => t.riskResult.level === 'LOW').length
-              : key === 'flagged' ? transactions.filter(t => t.riskResult.level === 'MEDIUM').length
-              : transactions.filter(t => t.status === 'blocked').length;
+      {/* ── Sticky header ── */}
+      <div
+        className="sticky top-16 z-30 px-4 sm:px-6 lg:px-8 py-5 border-b"
+        style={{
+          background: 'rgba(4,13,10,0.97)',
+          borderColor: 'rgba(0,255,135,0.07)',
+          backdropFilter: 'blur(10px)',
+        }}
+      >
+        <div className="max-w-5xl mx-auto">
+          {/* Page heading */}
+          <div className="mb-4">
+            <h1
+              className="text-2xl font-black tracking-tight"
+              style={{ color: '#E8FFF1' }}
+            >
+              Transaction History
+            </h1>
+            <p className="mt-0.5 text-xs font-medium" style={{ color: 'rgba(0,255,135,0.4)' }}>
+              {transactions.length} total transactions · SecureFlow audit trail
+            </p>
+          </div>
 
-            const active = tab === key;
-            return (
-              <button
-                key={key}
-                onClick={() => setTab(key)}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
-                  active
-                    ? 'bg-[#3B82F6] text-white shadow-lg'
-                    : 'bg-[#111827] text-[#9CA3AF] border border-[#1E2D45] hover:border-[#3B82F6]/50 hover:text-[#F9FAFB]'
-                }`}
-              >
-                {label}
-                <span
-                  className={`text-xs px-1.5 py-0.5 rounded-full ${
-                    active ? 'bg-white/20 text-white' : 'bg-[#1E2D45] text-[#9CA3AF]'
-                  }`}
+          {/* Filter tabs */}
+          <div className="flex flex-wrap gap-1.5">
+            {TABS.map(({ key, label }) => {
+              const active = tab === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => setTab(key)}
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-150"
+                  style={{
+                    background: active ? 'rgba(0,255,135,0.12)' : 'transparent',
+                    color: active ? '#00FF87' : 'rgba(0,255,135,0.38)',
+                    border: active
+                      ? '1px solid rgba(0,255,135,0.3)'
+                      : '1px solid rgba(0,255,135,0.07)',
+                  }}
                 >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+                  {label}
+                  <span
+                    className="text-[10px] px-1.5 py-0.5 rounded-full font-black"
+                    style={{
+                      background: active ? 'rgba(0,255,135,0.15)' : 'rgba(0,255,135,0.05)',
+                      color: active ? '#00FF87' : 'rgba(0,255,135,0.3)',
+                    }}
+                  >
+                    {counts[key]}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
+      </div>
 
-        {/* ── States ── */}
+      {/* ── Body ── */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        {/* Loading */}
         {loading && (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <div className="w-8 h-8 rounded-full border-2 border-[#3B82F6] border-t-transparent animate-spin" />
-            <p className="text-[#9CA3AF] text-sm">Loading transactions…</p>
+          <div className="flex flex-col items-center justify-center py-32 gap-4">
+            <div
+              className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+              style={{ borderColor: 'rgba(0,255,135,0.2)', borderTopColor: '#00FF87' }}
+            />
+            <p className="text-sm font-medium" style={{ color: 'rgba(0,255,135,0.4)' }}>
+              Loading transactions…
+            </p>
           </div>
         )}
 
+        {/* Error */}
         {!loading && error && (
-          <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+          <div
+            className="flex items-center gap-3 p-4 rounded-xl text-sm"
+            style={{
+              background: 'rgba(239,68,68,0.07)',
+              border: '1px solid rgba(239,68,68,0.22)',
+              color: '#FCA5A5',
+            }}
+          >
             <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />
@@ -152,23 +213,31 @@ const History: React.FC = () => {
           </div>
         )}
 
+        {/* Empty state */}
         {!loading && !error && filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
+          <div className="flex flex-col items-center justify-center py-32 gap-4 text-center">
             <EmptyIcon />
-            <p className="text-[#F9FAFB] font-semibold text-lg">No transactions found</p>
-            <p className="text-[#9CA3AF] text-sm max-w-xs">
-              {tab === 'all'
-                ? 'You haven\'t made any transactions yet.'
-                : `No ${tab} transactions to show.`}
-            </p>
+            <div>
+              <p className="text-base font-bold" style={{ color: 'rgba(0,255,135,0.4)' }}>
+                No transactions found
+              </p>
+              <p className="text-xs mt-1" style={{ color: 'rgba(0,255,135,0.2)' }}>
+                {tab === 'all'
+                  ? "You haven't made any transactions yet."
+                  : `No ${tab} transactions to show.`}
+              </p>
+            </div>
           </div>
         )}
 
-        {/* ── Transaction list ── */}
+        {/* Transaction list */}
         {!loading && !error && filtered.length > 0 && (
           <div className="flex flex-col gap-2">
             {/* Desktop column headers */}
-            <div className="hidden lg:grid grid-cols-[2fr_1.5fr_1fr_1.5fr_1fr_1fr_32px] px-5 py-2 text-xs font-semibold uppercase tracking-widest text-[#4B5563]">
+            <div
+              className="hidden lg:grid grid-cols-[2fr_1.5fr_1fr_1.5fr_1fr_1fr_32px] px-5 py-2 text-[10px] font-black uppercase tracking-[0.18em]"
+              style={{ color: 'rgba(0,255,135,0.28)' }}
+            >
               <span>Recipient</span>
               <span>UPI ID</span>
               <span>Amount</span>
@@ -180,40 +249,64 @@ const History: React.FC = () => {
 
             {filtered.map((txn) => {
               const isExpanded = expanded.has(txn.id);
-              const isHigh = txn.riskResult.level === 'HIGH';
               return (
                 <div
                   key={txn.id}
-                  className={`rounded-xl border border-[#1E2D45] bg-[#111827] overflow-hidden transition-all duration-200 hover:border-[#3B82F6]/30 ${isHigh ? 'bg-[#7F1D1D]/10' : ''} ${leftBorderClass[txn.riskResult.level]}`}
+                  className={`rounded-xl overflow-hidden transition-all duration-200 ${leftBorderStyle[txn.riskResult.level]}`}
+                  style={{
+                    background: 'rgba(6,14,10,0.95)',
+                    border: '1px solid rgba(0,255,135,0.06)',
+                    borderLeft: undefined, // let className handle the left border
+                  }}
                 >
                   {/* Main row */}
                   <button
-                    className="w-full text-left"
+                    className="w-full text-left group"
                     onClick={() => toggleExpand(txn.id)}
+                    style={{ display: 'block' }}
                   >
                     {/* Desktop layout */}
-                    <div className="hidden lg:grid grid-cols-[2fr_1.5fr_1fr_1.5fr_1fr_1fr_32px] items-center px-5 py-4 gap-3">
-                      <span className="font-semibold text-[#F9FAFB] truncate">
+                    <div
+                      className="hidden lg:grid grid-cols-[2fr_1.5fr_1fr_1.5fr_1fr_1fr_32px] items-center px-5 py-4 gap-3 transition-colors duration-150"
+                      style={{}}
+                      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(0,255,135,0.03)'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = ''; }}
+                    >
+                      <span className="font-semibold truncate" style={{ color: '#C8F5DC' }}>
                         {txn.recipientName}
                       </span>
-                      <span className="text-[#9CA3AF] text-sm truncate font-mono">
+                      <span className="text-sm truncate font-mono" style={{ color: 'rgba(0,255,135,0.38)' }}>
                         {txn.recipientUPI}
                       </span>
-                      <span className="font-bold text-[#F9FAFB]">
+                      <span className="font-black" style={{ color: '#E8FFF1' }}>
                         {formatAmount(txn.amount)}
                       </span>
-                      <span className="text-[#9CA3AF] text-sm">
+                      <span className="text-sm font-mono" style={{ color: 'rgba(0,255,135,0.45)' }}>
                         {formatDate(txn.timestamp)}
                       </span>
                       <span>
                         <RiskBadge level={txn.riskResult.level} score={txn.riskResult.score} />
                       </span>
                       <span>
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${statusConfig[txn.status].cls}`}>
+                        <span
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+                          style={{
+                            color: statusConfig[txn.status].color,
+                            background: statusConfig[txn.status].bg,
+                            border: `1px solid ${statusConfig[txn.status].border}`,
+                          }}
+                        >
+                          <span
+                            className="w-1.5 h-1.5 rounded-full"
+                            style={{ background: statusConfig[txn.status].color }}
+                          />
                           {statusConfig[txn.status].label}
                         </span>
                       </span>
-                      <span className="text-[#4B5563] flex items-center justify-end">
+                      <span
+                        className="flex items-center justify-end"
+                        style={{ color: 'rgba(0,255,135,0.25)' }}
+                      >
                         {isExpanded ? <ChevronUp /> : <ChevronDown />}
                       </span>
                     </div>
@@ -222,66 +315,113 @@ const History: React.FC = () => {
                     <div className="lg:hidden flex flex-col gap-3 px-4 py-4">
                       <div className="flex items-center justify-between gap-2">
                         <div>
-                          <p className="font-semibold text-[#F9FAFB]">{txn.recipientName}</p>
-                          <p className="text-xs text-[#9CA3AF] font-mono mt-0.5">{txn.recipientUPI}</p>
+                          <p className="font-semibold" style={{ color: '#C8F5DC' }}>{txn.recipientName}</p>
+                          <p className="text-xs font-mono mt-0.5" style={{ color: 'rgba(0,255,135,0.38)' }}>
+                            {txn.recipientUPI}
+                          </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-[#F9FAFB]">{formatAmount(txn.amount)}</p>
-                          <p className="text-xs text-[#9CA3AF] mt-0.5">{formatDate(txn.timestamp)}</p>
+                          <p className="font-black" style={{ color: '#E8FFF1' }}>{formatAmount(txn.amount)}</p>
+                          <p className="text-xs mt-0.5 font-mono" style={{ color: 'rgba(0,255,135,0.45)' }}>
+                            {formatDate(txn.timestamp)}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <RiskBadge level={txn.riskResult.level} score={txn.riskResult.score} />
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${statusConfig[txn.status].cls}`}>
+                        <span
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+                          style={{
+                            color: statusConfig[txn.status].color,
+                            background: statusConfig[txn.status].bg,
+                            border: `1px solid ${statusConfig[txn.status].border}`,
+                          }}
+                        >
+                          <span
+                            className="w-1.5 h-1.5 rounded-full"
+                            style={{ background: statusConfig[txn.status].color }}
+                          />
                           {statusConfig[txn.status].label}
                         </span>
-                        <span className="ml-auto text-[#4B5563]">
+                        <span className="ml-auto" style={{ color: 'rgba(0,255,135,0.25)' }}>
                           {isExpanded ? <ChevronUp /> : <ChevronDown />}
                         </span>
                       </div>
                     </div>
                   </button>
 
-                  {/* Expanded risk reasons */}
+                  {/* Expanded risk details */}
                   {isExpanded && (
-                    <div className="border-t border-[#1E2D45] px-5 py-4 bg-[#0A0F1E]/60">
+                    <div
+                      className="border-t px-5 py-4"
+                      style={{
+                        borderColor: 'rgba(0,255,135,0.07)',
+                        background: 'rgba(4,11,8,0.8)',
+                      }}
+                    >
                       {/* Remarks */}
                       {txn.remarks && (
-                        <p className="text-sm text-[#9CA3AF] mb-4">
-                          <span className="text-[#4B5563] font-medium">Remarks: </span>
-                          {txn.remarks}
+                        <p className="text-sm mb-4" style={{ color: 'rgba(0,255,135,0.5)' }}>
+                          <span className="font-semibold" style={{ color: 'rgba(0,255,135,0.3)' }}>Remarks: </span>
+                          <span style={{ color: '#9DD4B2' }}>{txn.remarks}</span>
                         </p>
                       )}
 
                       {/* Risk reasons */}
                       {txn.riskResult.reasons.length === 0 ? (
-                        <p className="text-sm text-[#4B5563]">No risk flags detected.</p>
+                        <p className="text-sm" style={{ color: 'rgba(0,255,135,0.25)' }}>
+                          No risk flags detected.
+                        </p>
                       ) : (
                         <div>
-                          <p className="text-xs font-semibold uppercase tracking-widest text-[#4B5563] mb-3">
+                          <p
+                            className="text-[10px] font-black uppercase tracking-[0.18em] mb-3"
+                            style={{ color: 'rgba(0,255,135,0.28)' }}
+                          >
                             Risk Flags Detected
                           </p>
                           <div className="flex flex-col gap-2">
                             {txn.riskResult.reasons.map((reason) => {
-                              const sevColor =
-                                reason.severity === 'HIGH'   ? 'text-red-400 border-red-500/30 bg-red-500/10'
-                                : reason.severity === 'MEDIUM' ? 'text-amber-400 border-amber-500/30 bg-amber-500/10'
-                                : 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10';
+                              const sevStyle =
+                                reason.severity === 'HIGH'
+                                  ? { color: '#EF4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.22)' }
+                                  : reason.severity === 'MEDIUM'
+                                  ? { color: '#F59E0B', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.22)' }
+                                  : { color: '#00FF87', bg: 'rgba(0,255,135,0.06)', border: 'rgba(0,255,135,0.2)' };
                               return (
                                 <div
                                   key={reason.ruleId}
-                                  className="flex items-start gap-3 p-3 rounded-lg border border-[#1E2D45] bg-[#111827]"
+                                  className="flex items-start gap-3 p-3 rounded-lg"
+                                  style={{
+                                    background: 'rgba(6,14,10,0.9)',
+                                    border: '1px solid rgba(0,255,135,0.06)',
+                                  }}
                                 >
                                   <span
-                                    className={`mt-0.5 shrink-0 text-xs px-2 py-0.5 rounded-full border font-semibold ${sevColor}`}
+                                    className="mt-0.5 shrink-0 text-[10px] px-2 py-0.5 rounded-full font-black"
+                                    style={{
+                                      color: sevStyle.color,
+                                      background: sevStyle.bg,
+                                      border: `1px solid ${sevStyle.border}`,
+                                    }}
                                   >
                                     {reason.severity}
                                   </span>
                                   <div className="min-w-0">
-                                    <p className="text-sm font-semibold text-[#F9FAFB]">{reason.title}</p>
-                                    <p className="text-xs text-[#9CA3AF] mt-0.5 leading-relaxed">{reason.description}</p>
+                                    <p className="text-sm font-semibold" style={{ color: '#C8F5DC' }}>
+                                      {reason.title}
+                                    </p>
+                                    <p
+                                      className="text-xs mt-0.5 leading-relaxed"
+                                      style={{ color: 'rgba(0,255,135,0.38)' }}
+                                    >
+                                      {reason.description}
+                                    </p>
                                   </div>
-                                  <span className="ml-auto shrink-0 text-xs text-[#4B5563] font-mono">
+                                  <span
+                                    className="ml-auto shrink-0 text-xs font-mono font-bold"
+                                    style={{ color: sevStyle.color }}
+                                  >
                                     +{reason.scoreAdded}
                                   </span>
                                 </div>
@@ -292,15 +432,20 @@ const History: React.FC = () => {
                       )}
 
                       {/* Recommended action */}
-                      <div className="mt-4 flex items-center gap-2 text-xs text-[#9CA3AF]">
-                        <span className="text-[#4B5563]">Recommended action:</span>
+                      <div
+                        className="mt-4 flex items-center gap-2 text-xs"
+                        style={{ color: 'rgba(0,255,135,0.3)' }}
+                      >
+                        <span>Recommended action:</span>
                         <span
-                          className={`font-bold ${
-                            txn.riskResult.recommendedAction === 'BLOCK'  ? 'text-red-400'
-                            : txn.riskResult.recommendedAction === 'DELAY' ? 'text-amber-400'
-                            : txn.riskResult.recommendedAction === 'WARN'  ? 'text-amber-300'
-                            : 'text-emerald-400'
-                          }`}
+                          className="font-black"
+                          style={{
+                            color:
+                              txn.riskResult.recommendedAction === 'BLOCK'  ? '#EF4444'
+                              : txn.riskResult.recommendedAction === 'DELAY' ? '#F59E0B'
+                              : txn.riskResult.recommendedAction === 'WARN'  ? '#F59E0B'
+                              : '#00FF87',
+                          }}
                         >
                           {txn.riskResult.recommendedAction}
                         </span>
@@ -310,6 +455,14 @@ const History: React.FC = () => {
                 </div>
               );
             })}
+
+            {/* Footer count */}
+            <p
+              className="text-center text-xs mt-6 font-medium"
+              style={{ color: 'rgba(0,255,135,0.2)' }}
+            >
+              Showing {filtered.length} of {transactions.length} transactions
+            </p>
           </div>
         )}
       </div>
