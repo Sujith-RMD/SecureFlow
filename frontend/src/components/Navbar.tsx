@@ -5,7 +5,7 @@ import type { User } from '../types';
 
 const ShieldLogo = () => (
   <svg
-    className="w-7 h-7 text-[#3B82F6]"
+    className="w-7 h-7 text-[#00FF87]"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -58,14 +58,14 @@ const Navbar: React.FC = () => {
       .catch(() => {/* silently skip if backend not ready */});
   }, []);
 
-  const activeCls = 'text-[#3B82F6] border-b-2 border-[#3B82F6] pb-0.5';
-  const inactiveCls = 'text-[#9CA3AF] hover:text-[#F9FAFB] transition-colors duration-150';
+  const activeCls = 'text-[#00FF87] border-b-2 border-[#00FF87] pb-0.5';
+  const inactiveCls = 'text-[#5A8A70] hover:text-[#00FF87] transition-colors duration-150';
 
   return (
     <>
       <nav
-        className="sticky top-0 z-50 h-16 flex items-center justify-between px-6 lg:px-10 border-b border-[#1E2D45]"
-        style={{ background: 'rgba(17,24,39,0.95)', backdropFilter: 'blur(12px)' }}
+        className="sticky top-0 z-50 h-16 flex items-center justify-between px-6 lg:px-10 border-b border-[#0D2418]"
+        style={{ background: 'rgba(4,13,10,0.97)', backdropFilter: 'blur(12px)' }}
       >
         {/* ── Logo ── */}
         <button
@@ -73,7 +73,7 @@ const Navbar: React.FC = () => {
           className="flex items-center gap-2.5 group"
         >
           <ShieldLogo />
-          <span className="text-xl font-extrabold text-[#3B82F6] tracking-tight group-hover:text-[#06B6D4] transition-colors duration-150">
+          <span className="text-xl font-extrabold text-[#00FF87] tracking-tight group-hover:text-[#00E5CC] transition-colors duration-150">
             SecureFlow
           </span>
         </button>
@@ -97,9 +97,9 @@ const Navbar: React.FC = () => {
         {/* ── Right: user info ── */}
         <div className="hidden md:flex items-center">
           {user ? (
-            <div className="flex items-center gap-3 pl-4 border-l border-[#1E2D45]">
+            <div className="flex items-center gap-3 pl-4 border-l border-[#0D2418]">
               {/* Balance chip */}
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold" style={{ background: 'rgba(0,255,135,0.07)', borderColor: 'rgba(0,255,135,0.2)', color: '#00FF87' }}>
                 <WalletIcon />
                 ₹{user.balance.toLocaleString('en-IN')}
               </div>
@@ -107,20 +107,20 @@ const Navbar: React.FC = () => {
               <div className="flex items-center gap-2">
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                  style={{ background: 'linear-gradient(135deg, #3B82F6, #06B6D4)' }}
+                  style={{ background: 'linear-gradient(135deg, #00C96A, #00FF87)' }}
                 >
                   {user.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex flex-col leading-tight">
-                  <span className="text-xs font-semibold text-[#F9FAFB]">{user.name}</span>
+                  <span className="text-xs font-semibold text-[#E8FFF1]">{user.name}</span>
                   <span className="text-xs text-[#9CA3AF] font-mono">{user.upiId}</span>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2 pl-4 border-l border-[#1E2D45]">
-              <div className="w-8 h-8 rounded-full bg-[#1E2D45] animate-pulse" />
-              <div className="h-3 w-24 rounded bg-[#1E2D45] animate-pulse" />
+            <div className="flex items-center gap-2 pl-4 border-l border-[#0D2418]">
+              <div className="w-8 h-8 rounded-full bg-[#0D2418] animate-pulse" />
+              <div className="h-3 w-24 rounded bg-[#0D2418] animate-pulse" />
             </div>
           )}
         </div>
@@ -138,8 +138,8 @@ const Navbar: React.FC = () => {
       {/* ── Mobile drawer ── */}
       {menuOpen && (
         <div
-          className="md:hidden fixed top-16 inset-x-0 z-40 border-b border-[#1E2D45] px-6 py-5 flex flex-col gap-4"
-          style={{ background: 'rgba(17,24,39,0.98)', backdropFilter: 'blur(12px)' }}
+          className="md:hidden fixed top-16 inset-x-0 z-40 border-b border-[#0D2418] px-6 py-5 flex flex-col gap-4"
+          style={{ background: 'rgba(4,13,10,0.98)', backdropFilter: 'blur(12px)' }}
         >
           {navLinks.map(({ to, label }) => (
             <NavLink
@@ -148,25 +148,25 @@ const Navbar: React.FC = () => {
               end={to === '/'}
               onClick={() => setMenuOpen(false)}
               className={({ isActive }) =>
-                `text-base font-medium py-2 border-b border-[#1E2D45] ${isActive ? 'text-[#3B82F6]' : 'text-[#9CA3AF]'}`
+                `text-base font-medium py-2 border-b border-[#0D2418] ${isActive ? 'text-[#00FF87]' : 'text-[#6B9E80]'}`
               }
             >
               {label}
             </NavLink>
           ))}
           {user && (
-            <div className="pt-2 flex items-center gap-3 border-t border-[#1E2D45]">
+            <div className="pt-2 flex items-center gap-3 border-t border-[#0D2418]">
               <div
                 className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white"
-                style={{ background: 'linear-gradient(135deg, #3B82F6, #06B6D4)' }}
+                style={{ background: 'linear-gradient(135deg, #00C96A, #00FF87)' }}
               >
                 {user.name.charAt(0).toUpperCase()}
               </div>
               <div className="flex flex-col leading-tight">
-                <span className="text-sm font-semibold text-[#F9FAFB]">{user.name}</span>
+                <span className="text-sm font-semibold text-[#E8FFF1]">{user.name}</span>
                 <span className="text-xs text-[#9CA3AF] font-mono">{user.upiId}</span>
               </div>
-              <div className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+              <div className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold" style={{ background: 'rgba(0,255,135,0.07)', borderColor: 'rgba(0,255,135,0.2)', color: '#00FF87' }}>
                 <WalletIcon />
                 ₹{user.balance.toLocaleString('en-IN')}
               </div>
