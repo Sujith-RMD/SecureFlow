@@ -37,7 +37,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           <StatCard label="Transactions Screened" value="12,847" delta="↑2.3% vs last hour" color="#00FF87" />
           <StatCard label="Threats Blocked" value="234" delta="↘3 from baseline" color="#FF4560" />
-          <StatCard label="Avg Risk Score" value="18.4" delta="Low-risk zone" color="#00E5CC" />
+          <StatCard label="Avg Risk Score" value="18.4" delta="Low-risk zone" color="#00FFB0" />
         </div>
 
         {/* ── Main Grid ── */}
