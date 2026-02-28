@@ -3,8 +3,23 @@ from datetime import datetime, timedelta
 from models import RiskReason
 
 SCAM_KEYWORDS = [
-    "lottery", "prize", "urgent",
-    "gift", "claim", "winner", "free"
+    # classic bait words
+    "lottery", "prize", "urgent", "gift", "claim", "winner", "free",
+    # pressure / fear tactics
+    "otp", "verify", "suspend", "blocked", "expired", "deadline",
+    "immediately", "hurry", "asap", "now", "quick",
+    # impersonation / authority
+    "rbi", "bank manager", "customer care", "kyc", "aadhar", "pan",
+    "police", "court", "legal notice", "arrest",
+    # money lure
+    "cashback", "refund", "reward", "bonus", "offer", "discount",
+    "investment", "guaranteed", "double", "profit", "returns",
+    # social engineering
+    "help me", "emergency", "hospital", "accident", "stranded",
+    "send money", "transfer now", "pay now", "do it now",
+    # crypto / job scams
+    "bitcoin", "crypto", "trading", "work from home", "part time job",
+    "commission", "registration fee", "processing fee",
 ]
 
 def analyze_transaction(payload, history: List[dict]):

@@ -36,4 +36,35 @@ export const sendTransaction = async (payload: {
   return res.data;
 };
 
+export interface DashboardStats {
+  totalTransactions: number;
+  flaggedCount: number;
+  blockedCount: number;
+  moneySaved: number;
+  safeCount: number;
+  securityScore: number;
+  trustRate: number;
+  avgRiskScore: number;
+  totalAmount: number;
+  recentTransactions: {
+    id: string;
+    to: string;
+    name: string;
+    amount: number;
+    risk: 'LOW' | 'MEDIUM' | 'HIGH';
+    score: number;
+    time: string;
+  }[];
+  riskDistribution: {
+    low:    { count: number; pct: number };
+    medium: { count: number; pct: number };
+    high:   { count: number; pct: number };
+  };
+}
+
+export const getDashboardStats = async (): Promise<DashboardStats> => {
+  const res = await api.get<DashboardStats>('/api/dashboard-stats');
+  return res.data;
+};
+
 export default api;

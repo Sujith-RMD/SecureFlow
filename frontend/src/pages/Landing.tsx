@@ -193,7 +193,7 @@ const Landing: React.FC = () => {
               className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-3"
             >
               <button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/send')}
                 className="group inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl font-bold text-base text-white transition-all duration-200 hover:scale-105 hover:brightness-110 active:scale-100"
                 style={{
                   background: 'linear-gradient(135deg, #00A855 0%, #00FF87 55%, #00FFB0 100%)',
@@ -414,7 +414,7 @@ const Landing: React.FC = () => {
               </p>
             </div>
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/send')}
               className="relative inline-flex items-center gap-3 px-12 py-5 rounded-2xl font-bold text-lg text-white transition-all duration-200 hover:scale-105 hover:brightness-110 active:scale-100"
               style={{
                 background: 'linear-gradient(135deg, #00A855, #00FF87, #00FFB0)',
