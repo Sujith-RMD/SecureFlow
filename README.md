@@ -310,8 +310,8 @@ Built with ❤️ by:
 | Name | GitHub |
 |------|--------|
 | **Sujith** | [@Sujith-RMD](https://github.com/Sujith-RMD) |
-| **Abdul Fattah** | |
-| **Vaibhav** | |
+| **Abdul Fattah** | [@hydralgorithm](https://github.com/hydralgorithm) |
+| **Vaibhav** | [@vaibhavyadavvv2007-ai](https://github.com/vaibhavyadavvv2007-ai) |
 
 ---
 
