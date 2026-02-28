@@ -82,8 +82,8 @@ const features = [
     label: 'Full Transparency',
     title: 'No black boxes, ever',
     desc: 'Every flag gets a plain-English reason. You always know exactly why SecureFlow intervened — no mystery, no second-guessing.',
-    accent: '#00E5CC',
-    glow: 'rgba(0,229,204,0.28)',
+    accent: '#00FFB0',
+    glow: 'rgba(0,255,176,0.28)',
   },
 ];
 
@@ -96,7 +96,7 @@ const stats = [
 const steps = [
   { n: '01', title: 'Initiate Payment',  body: 'Enter recipient, amount and remarks — exactly as you do today in any UPI app.',       color: '#00FF87' },
   { n: '02', title: 'Engine Scores It',  body: 'Dozens of signals weighed simultaneously: trust score, amount, time, language cues.', color: '#00C96A' },
-  { n: '03', title: 'Intelligent Gate',  body: 'LOW flows freely. MEDIUM warns. HIGH delays or blocks — every time with a reason.',    color: '#00E5CC' },
+  { n: '03', title: 'Intelligent Gate',  body: 'LOW flows freely. MEDIUM warns. HIGH delays or blocks — every time with a reason.',    color: '#00FFB0' },
 ];
 
 const riskLevels = [
@@ -150,12 +150,12 @@ const Landing: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1, duration: 0.5 }}
               className="mb-7 inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide"
-              style={{ background: 'rgba(0,255,135,0.08)', border: '1px solid rgba(0,255,135,0.35)', color: '#00FF87' }}
+              style={{ background: 'rgba(0,255,135,0.08)', border: '1px solid rgba(0,255,135,0.35)', color: '#ffffff' }}
             >
               <ZapFill />
               <span>Intent-Aware UPI Fraud Prevention</span>
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#00FF87', boxShadow: '0 0 6px #00FF87' }} />
-              <span style={{ color: '#00FF87' }}>Live</span>
+              <span style={{ color: '#ffffff' }}>Live</span>
             </motion.div>
 
             <BlurText
@@ -172,7 +172,7 @@ const Landing: React.FC = () => {
               animate={{ opacity: 1, width: '100%' }}
               transition={{ delay: 0.9, duration: 0.7 }}
               className="mt-5 max-w-xs h-1 rounded-full mx-auto"
-              style={{ background: 'linear-gradient(90deg, #00FF87, #00C96A, #00E5CC)' }}
+              style={{ background: 'linear-gradient(90deg, #00FF87, #00C96A, #00FFB0)' }}
             />
 
             <motion.p
@@ -196,7 +196,7 @@ const Landing: React.FC = () => {
                 onClick={() => navigate('/dashboard')}
                 className="group inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl font-bold text-base text-white transition-all duration-200 hover:scale-105 hover:brightness-110 active:scale-100"
                 style={{
-                  background: 'linear-gradient(135deg, #00A855 0%, #00FF87 55%, #00E5CC 100%)',
+                  background: 'linear-gradient(135deg, #00A855 0%, #00FF87 55%, #00FFB0 100%)',
                   boxShadow: '0 0 48px rgba(0,255,135,0.45), 0 2px 0 rgba(255,255,255,0.12) inset',
                   color: '#040D0A',
                 }}
@@ -250,7 +250,7 @@ const Landing: React.FC = () => {
           {stats.map((s, i) => (
             <FadeIn key={i} delay={i * 0.1}>
               <div className="flex flex-col items-center sm:items-start gap-1.5 text-center sm:text-left sm:border-r last:border-r-0" style={{ borderColor: 'rgba(0,255,135,0.07)' }}>
-                <span className="text-4xl sm:text-5xl font-black bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #00FF87 0%, #00C96A 40%, #00E5CC 100%)' }}>
+                <span className="text-4xl sm:text-5xl font-black bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #00FF87 0%, #00C96A 40%, #00FFB0 100%)' }}>
                   {s.value}
                 </span>
                 <span className="text-sm font-semibold text-white">{s.label}</span>
@@ -271,7 +271,7 @@ const Landing: React.FC = () => {
               <p className="text-xs font-bold uppercase tracking-[0.25em] mb-4" style={{ color: '#00FF87' }}>How SecureFlow works</p>
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight">
                 Three layers of{' '}
-                <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(90deg, #00FF87, #00C96A, #00E5CC)' }}>
+                <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(90deg, #00FF87, #00C96A, #00FFB0)' }}>
                   invisible armour
                 </span>
               </h2>
@@ -330,7 +330,7 @@ const Landing: React.FC = () => {
           </FadeIn>
           <div className="relative grid grid-cols-1 md:grid-cols-3 gap-5">
             <div className="hidden md:block absolute top-[2.6rem] left-[calc(16.67%+20px)] right-[calc(16.67%+20px)] h-px"
-              style={{ background: 'linear-gradient(90deg, transparent 0%, #00FF8740 20%, #00C96A40 50%, #00E5CC40 80%, transparent 100%)' }} />
+              style={{ background: 'linear-gradient(90deg, transparent 0%, #00FF8740 20%, #00C96A40 50%, #00FFB040 80%, transparent 100%)' }} />
             {steps.map((s, i) => (
               <FadeIn key={i} delay={0.1 + i * 0.15}>
                 <div className="relative flex flex-col gap-4 p-7 rounded-3xl h-full"
@@ -353,7 +353,7 @@ const Landing: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <FadeIn>
             <div className="text-center mb-16">
-              <p className="text-xs font-bold uppercase tracking-[0.25em] mb-4" style={{ color: '#00E5CC' }}>Risk classification</p>
+              <p className="text-xs font-bold uppercase tracking-[0.25em] mb-4" style={{ color: '#00FFB0' }}>Risk classification</p>
               <h2 className="text-4xl sm:text-5xl font-black tracking-tight">What each risk level does</h2>
               <p className="mt-4 text-[#5A8A70] text-lg">Three responses, calibrated to the threat.</p>
             </div>
@@ -417,7 +417,7 @@ const Landing: React.FC = () => {
               onClick={() => navigate('/dashboard')}
               className="relative inline-flex items-center gap-3 px-12 py-5 rounded-2xl font-bold text-lg text-white transition-all duration-200 hover:scale-105 hover:brightness-110 active:scale-100"
               style={{
-                background: 'linear-gradient(135deg, #00A855, #00FF87, #00E5CC)',
+                background: 'linear-gradient(135deg, #00A855, #00FF87, #00FFB0)',
                 boxShadow: '0 0 80px rgba(0,255,135,0.4), 0 2px 0 rgba(255,255,255,0.12) inset',
                 color: '#040D0A',
               }}

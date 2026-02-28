@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { getUser } from '../services/api';
-import type { User } from '../types';
 
 const ShieldLogo = () => (
   <svg
@@ -33,14 +31,6 @@ const CloseIcon = () => (
   </svg>
 );
 
-const WalletIcon = () => (
-  <svg className="w-3.5 h-3.5 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="2" y="7" width="20" height="14" rx="2" />
-    <path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z" />
-    <circle cx="16" cy="14" r="1" fill="currentColor" />
-  </svg>
-);
-
 const navLinks = [
   { to: '/',          label: 'Home' },
   { to: '/dashboard', label: 'Dashboard' },
@@ -48,15 +38,8 @@ const navLinks = [
 ];
 
 const Navbar: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    getUser()
-      .then(setUser)
-      .catch(() => {/* silently skip if backend not ready */});
-  }, []);
 
   const activeCls = 'text-[#00FF87] border-b-2 border-[#00FF87] pb-0.5';
   const inactiveCls = 'text-[#5A8A70] hover:text-[#00FF87] transition-colors duration-150';
@@ -73,7 +56,7 @@ const Navbar: React.FC = () => {
           className="flex items-center gap-2.5 group"
         >
           <ShieldLogo />
-          <span className="text-xl font-extrabold text-[#00FF87] tracking-tight group-hover:text-[#00E5CC] transition-colors duration-150">
+          <span className="text-xl font-extrabold text-[#00FF87] tracking-tight group-hover:text-[#00FFB0] transition-colors duration-150">
             SecureFlow
           </span>
         </button>
@@ -92,37 +75,6 @@ const Navbar: React.FC = () => {
               {label}
             </NavLink>
           ))}
-        </div>
-
-        {/* ── Right: user info ── */}
-        <div className="hidden md:flex items-center">
-          {user ? (
-            <div className="flex items-center gap-3 pl-4 border-l border-[#0D2418]">
-              {/* Balance chip */}
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold" style={{ background: 'rgba(0,255,135,0.07)', borderColor: 'rgba(0,255,135,0.2)', color: '#00FF87' }}>
-                <WalletIcon />
-                ₹{user.balance.toLocaleString('en-IN')}
-              </div>
-              {/* Avatar + UPI */}
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                  style={{ background: 'linear-gradient(135deg, #00C96A, #00FF87)' }}
-                >
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex flex-col leading-tight">
-                  <span className="text-xs font-semibold text-[#E8FFF1]">{user.name}</span>
-                  <span className="text-xs text-[#9CA3AF] font-mono">{user.upiId}</span>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 pl-4 border-l border-[#0D2418]">
-              <div className="w-8 h-8 rounded-full bg-[#0D2418] animate-pulse" />
-              <div className="h-3 w-24 rounded bg-[#0D2418] animate-pulse" />
-            </div>
-          )}
         </div>
 
         {/* ── Mobile hamburger ── */}
@@ -154,24 +106,6 @@ const Navbar: React.FC = () => {
               {label}
             </NavLink>
           ))}
-          {user && (
-            <div className="pt-2 flex items-center gap-3 border-t border-[#0D2418]">
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white"
-                style={{ background: 'linear-gradient(135deg, #00C96A, #00FF87)' }}
-              >
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="flex flex-col leading-tight">
-                <span className="text-sm font-semibold text-[#E8FFF1]">{user.name}</span>
-                <span className="text-xs text-[#9CA3AF] font-mono">{user.upiId}</span>
-              </div>
-              <div className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold" style={{ background: 'rgba(0,255,135,0.07)', borderColor: 'rgba(0,255,135,0.2)', color: '#00FF87' }}>
-                <WalletIcon />
-                ₹{user.balance.toLocaleString('en-IN')}
-              </div>
-            </div>
-          )}
         </div>
       )}
     </>
