@@ -177,6 +177,10 @@ const SendMoney: React.FC = () => {
       setError('Please fill in recipient UPI and amount.');
       return;
     }
+    if (!upi.trim().includes('@')) {
+      setError('Invalid UPI ID — must contain "@" (e.g. name@upi).');
+      return;
+    }
     const amt = parseFloat(amount);
     if (isNaN(amt) || amt <= 0) { setError('Enter a valid amount.'); return; }
 
@@ -189,6 +193,14 @@ const SendMoney: React.FC = () => {
       });
       setRisk(result);
       if (result.friction.type === 'BLOCK') {
+        // Still persist the blocked transaction so it appears in history
+        try {
+          await sendTransaction({
+            recipientUPI: upi.trim(),
+            amount: amt,
+            remarks: remarks.trim(),
+          });
+        } catch { /* best-effort persist */ }
         setStep('blocked');
       } else {
         setStep('review');

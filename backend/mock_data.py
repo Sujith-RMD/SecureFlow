@@ -353,6 +353,14 @@ def add_transaction(txn: dict):
     return txn
 
 
+def reset_history():
+    """Clear all transactions and reset user balance."""
+    global _initialized
+    _transactions.clear()
+    _initialized = True          # skip re-seeding
+    MOCK_USER["balance"] = 84750.50
+
+
 # ═══════════════════════════════════════════════════
 # MOCK USER
 # ═══════════════════════════════════════════════════

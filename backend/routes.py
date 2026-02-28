@@ -3,7 +3,7 @@ from models import AnalyzeRequest, RiskResult
 from core.risk_engine import analyze_transaction
 from core.friction_engine import map_friction
 from core.stats_engine import calculate_dashboard_stats
-from mock_data import get_mock_history, add_transaction, MOCK_USER
+from mock_data import get_mock_history, add_transaction, reset_history, MOCK_USER
 from datetime import datetime
 import logging
 
@@ -112,6 +112,15 @@ def user():
 def dashboard_stats():
     history_data = get_mock_history()
     return calculate_dashboard_stats(history_data)
+
+
+# ───────────────────────────────────────────────────
+# POST /api/reset — clear all history
+# ───────────────────────────────────────────────────
+@router.post("/reset")
+def reset():
+    reset_history()
+    return {"status": "ok", "message": "History cleared"}
 
 
 # ───────────────────────────────────────────────────
