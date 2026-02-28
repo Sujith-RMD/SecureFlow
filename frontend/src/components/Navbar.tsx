@@ -34,6 +34,7 @@ const CloseIcon = () => (
 const navLinks = [
   { to: '/',          label: 'Home' },
   { to: '/dashboard', label: 'Dashboard' },
+  { to: '/send',      label: 'Send Money' },
   { to: '/history',   label: 'History' },
 ];
 

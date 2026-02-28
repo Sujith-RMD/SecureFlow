@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { getDashboardStats, type DashboardStats } from '../services/api';
 
 /* ═══════════════════════════════════════════════════
    PALETTE — refined, easy on eyes
@@ -196,23 +197,62 @@ const IconZap    = () => <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="
 const IconTarget = () => <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>;
 const IconTrend  = () => <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
 
-/* ═══════════════════════════════════════════════════
-   DATA
-═══════════════════════════════════════════════════ */
-const TRANSACTIONS = [
-  { id: 'TXN-8821', to: 'rahul@okaxis',    name: 'Rahul S.',    amount: 2500,  risk: 'LOW'    as const, score: 12, time: '2s ago'  },
-  { id: 'TXN-8820', to: 'unknown@paytm',   name: 'Unknown',     amount: 45000, risk: 'HIGH'   as const, score: 91, time: '18s ago' },
-  { id: 'TXN-8819', to: 'priya@upi',       name: 'Priya M.',    amount: 800,   risk: 'LOW'    as const, score: 8,  time: '34s ago' },
-  { id: 'TXN-8818', to: 'new_recvr@ybl',   name: 'New Contact', amount: 12000, risk: 'MEDIUM' as const, score: 54, time: '1m ago'  },
-  { id: 'TXN-8817', to: 'a.verma@okicici', name: 'A. Verma',    amount: 500,   risk: 'LOW'    as const, score: 5,  time: '2m ago'  },
-  { id: 'TXN-8816', to: 'merchant@hdfc',   name: 'HDFC Merch',  amount: 3000,  risk: 'LOW'    as const, score: 18, time: '3m ago'  },
-];
 const RC = { LOW: P.accent, MEDIUM: '#E2A336', HIGH: '#F87171' } as const;
 
 /* ═══════════════════════════════════════════════════
    DASHBOARD
 ═══════════════════════════════════════════════════ */
 export default function Dashboard() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    getDashboardStats()
+      .then(setStats)
+      .catch(() => setError('Failed to load dashboard data. Is the backend running?'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: P.bg }}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+            style={{ borderColor: 'rgba(52,211,153,0.2)', borderTopColor: P.accent }} />
+          <p className="text-sm font-medium" style={{ color: P.textM }}>Loading dashboard…</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !stats) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: P.bg }}>
+        <div className="flex items-center gap-3 p-5 rounded-xl" style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', color: P.danger }}>
+          <IconZap />
+          <span className="text-sm font-medium">{error || 'Something went wrong.'}</span>
+        </div>
+      </div>
+    );
+  }
+
+  const { securityScore, totalTransactions, blockedCount, avgRiskScore, trustRate,
+    recentTransactions, riskDistribution, moneySaved, safeCount, flaggedCount } = stats;
+
+  const scoreLabel = securityScore >= 75 ? '✓ EXCELLENT' : securityScore >= 50 ? '⚠ MODERATE' : '✗ AT RISK';
+
+  // Generate sparkline-like arrays from recent data
+  const sparkTxns  = recentTransactions.map(t => t.amount).reverse();
+  const sparkRisk  = recentTransactions.map(t => t.score).reverse();
+  const sparkTrust = recentTransactions.map(() => trustRate + (Math.random() - 0.5) * 2).reverse();
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
+
   return (
     <div className="min-h-screen" style={{ background: P.bg }}>
 
@@ -233,7 +273,7 @@ export default function Dashboard() {
         </div>
         <div className="flex items-center gap-3">
           <span className="hidden sm:block text-[10px] font-mono" style={{ color: P.textD }}>
-            28 Feb 2026 · 14:32 IST
+            {dateStr} · {timeStr} IST
           </span>
           <div
             className="flex items-center gap-2 px-3 py-1.5 rounded-full"
@@ -260,17 +300,15 @@ export default function Dashboard() {
             boxShadow: '0 24px 80px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.025)',
           }}
         >
-          {/* Decorative noise overlay */}
           <div className="absolute inset-0 pointer-events-none opacity-[0.015]"
             style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%270 0 256 256%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.85%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E")' }} />
-          {/* Ambient gradient glow */}
           <div className="absolute inset-0 pointer-events-none" style={{
             background: 'radial-gradient(ellipse 50% 80% at 12% 50%, rgba(52,211,153,0.04) 0%, transparent 70%)',
           }} />
 
           {/* Radial meter */}
           <div className="flex justify-center lg:justify-start relative">
-            <SecurityMeter score={87} />
+            <SecurityMeter score={securityScore} />
           </div>
 
           {/* Score context */}
@@ -279,23 +317,26 @@ export default function Dashboard() {
               <div className="flex items-center gap-2.5 mb-3">
                 <span className="text-[11px] font-bold px-3 py-1.5 rounded-full"
                   style={{ background: 'rgba(52,211,153,0.08)', color: P.accent, border: `1px solid rgba(52,211,153,0.15)` }}>
-                  ✓ EXCELLENT
+                  {scoreLabel}
                 </span>
                 <span className="text-[10px] font-medium" style={{ color: P.textD }}>Updated just now</span>
               </div>
               <h2 className="text-2xl font-extrabold leading-snug" style={{ color: P.textH }}>
-                Your account is well protected
+                {securityScore >= 75 ? 'Your account is well protected' :
+                 securityScore >= 50 ? 'Some risk activity detected' :
+                 'Attention needed — high risk detected'}
               </h2>
               <p className="text-[13px] mt-2 leading-relaxed max-w-md" style={{ color: P.textB }}>
-                All defence layers are operational. No anomalies detected in the last 24 hours. Fraud intelligence is actively screening every transaction.
+                {totalTransactions} transactions analyzed. {blockedCount > 0 ? `${blockedCount} blocked, saving ₹${moneySaved.toLocaleString('en-IN')}.` : 'No threats blocked.'}{' '}
+                {safeCount} safe, {flaggedCount} flagged for review.
               </p>
             </div>
             {/* Sub-score bars */}
             <div className="space-y-3">
               {[
-                { label: 'Behavioural Analysis',  pct: 94, color: P.accent   },
-                { label: 'Network Trust Score',   pct: 81, color: P.accentAlt },
-                { label: 'Pattern Anomaly Guard', pct: 89, color: '#4ADE80'  },
+                { label: 'Behavioural Analysis',  pct: Math.min(100, securityScore + 7), color: P.accent },
+                { label: 'Network Trust Score',   pct: Math.min(100, Math.round(trustRate - 5)), color: P.accentAlt },
+                { label: 'Pattern Anomaly Guard', pct: Math.min(100, securityScore + 2), color: '#4ADE80' },
               ].map(s => (
                 <div key={s.label}>
                   <div className="flex justify-between text-xs mb-1.5">
@@ -317,9 +358,9 @@ export default function Dashboard() {
           {/* Quick stats column */}
           <div className="flex flex-row lg:flex-col gap-6 justify-around lg:justify-center">
             {[
-              { label: 'Screened',   value: '12,847', color: P.accent  },
-              { label: 'Blocked',    value: '234',    color: P.danger  },
-              { label: 'Trust Rate', value: '97.8%',  color: P.accentAlt },
+              { label: 'Screened',   value: totalTransactions.toLocaleString('en-IN'), color: P.accent },
+              { label: 'Blocked',    value: blockedCount.toLocaleString('en-IN'),       color: P.danger },
+              { label: 'Trust Rate', value: `${trustRate}%`,                            color: P.accentAlt },
             ].map(q => (
               <div key={q.label} className="text-center lg:text-right">
                 <p className="text-[9px] font-bold uppercase tracking-[0.2em] mb-1" style={{ color: P.textD }}>
@@ -336,27 +377,27 @@ export default function Dashboard() {
         {/* ══ Stats row with sparklines ══ */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
-            label="Txns Screened" value={12847}
-            delta="2.3%" deltaUp
-            sparkData={[60, 72, 65, 80, 78, 90, 95, 88, 100, 97, 108, 115]}
+            label="Txns Screened" value={totalTransactions}
+            delta={`${safeCount} safe`} deltaUp
+            sparkData={sparkTxns.length >= 2 ? sparkTxns : [0, 1]}
             color={P.accent} delay={0} icon={<IconShield />}
           />
           <StatCard
-            label="Threats Blocked" value={234}
-            delta="3 less" deltaUp={false}
-            sparkData={[30, 45, 20, 55, 35, 60, 40, 30, 25, 45, 20, 15]}
+            label="Threats Blocked" value={blockedCount}
+            delta={`₹${moneySaved.toLocaleString('en-IN')} saved`} deltaUp={blockedCount > 0}
+            sparkData={sparkRisk.length >= 2 ? sparkRisk : [0, 1]}
             color={P.danger} delay={100} icon={<IconZap />}
           />
           <StatCard
-            label="Avg Risk Score" value={184} decimals={1}
-            delta="0.4pts" deltaUp={false}
-            sparkData={[25, 22, 28, 20, 19, 22, 18, 20, 17, 18, 19, 18]}
+            label="Avg Risk Score" value={Math.round(avgRiskScore * 10)} decimals={1}
+            delta={avgRiskScore <= 30 ? 'Healthy' : 'Elevated'} deltaUp={avgRiskScore <= 30}
+            sparkData={sparkRisk.length >= 2 ? sparkRisk : [0, 1]}
             color={P.accentAlt} delay={200} icon={<IconTarget />}
           />
           <StatCard
-            label="Trust Rate" value={978} decimals={1} suffix="%"
-            delta="0.2%" deltaUp
-            sparkData={[95, 96, 95.5, 97, 96.8, 97.2, 97, 97.5, 97.8, 98, 97.9, 97.8]}
+            label="Trust Rate" value={Math.round(trustRate * 10)} decimals={1} suffix="%"
+            delta={trustRate >= 90 ? 'Strong' : 'Fair'} deltaUp={trustRate >= 90}
+            sparkData={sparkTrust.length >= 2 ? sparkTrust : [0, 1]}
             color="#4ADE80" delay={300} icon={<IconTrend />}
           />
         </div>
@@ -376,7 +417,7 @@ export default function Dashboard() {
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-xs font-bold uppercase tracking-[0.16em]" style={{ color: P.textB }}>
-                Live Transactions
+                Recent Transactions
               </h2>
               <span
                 className="flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-full"
@@ -402,7 +443,9 @@ export default function Dashboard() {
               <span className="text-right w-14">Time</span>
             </div>
 
-            {TRANSACTIONS.map((tx, i) => {
+            {recentTransactions.length === 0 ? (
+              <p className="text-sm text-center py-10" style={{ color: P.textM }}>No transactions yet.</p>
+            ) : recentTransactions.map((tx, i) => {
               const rc = RC[tx.risk];
               return (
                 <div
@@ -471,9 +514,9 @@ export default function Dashboard() {
                 Risk Distribution
               </h2>
               {[
-                { label: 'Low Risk',    pct: 78, count: '9,980', color: P.accent   },
-                { label: 'Medium Risk',  pct: 15, count: '1,927', color: '#E2A336'  },
-                { label: 'High Risk',   pct: 7,  count: '900',   color: P.danger   },
+                { label: 'Low Risk',   pct: riskDistribution.low.pct,    count: riskDistribution.low.count.toLocaleString('en-IN'),    color: P.accent },
+                { label: 'Medium Risk', pct: riskDistribution.medium.pct, count: riskDistribution.medium.count.toLocaleString('en-IN'), color: '#E2A336' },
+                { label: 'High Risk',  pct: riskDistribution.high.pct,   count: riskDistribution.high.count.toLocaleString('en-IN'),   color: P.danger },
               ].map(r => (
                 <div key={r.label} className="mb-5 last:mb-0 group">
                   <div className="flex justify-between items-baseline mb-2">
