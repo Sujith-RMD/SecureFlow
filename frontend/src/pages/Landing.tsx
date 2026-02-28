@@ -1,7 +1,7 @@
 ﻿import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import Silk from '../components/Silk';
+import GridScan from '../components/GridScan';
 import BlurText from '../components/BlurText';
 
 /* ─── Fade-in wrapper ────────────────────────────────────────── */
@@ -106,80 +106,6 @@ const riskLevels = [
 ];
 
 /* ─── Mock transaction card (hero visual) ────────────────────── */
-const MockTransactionCard = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 40, scale: 0.95 }}
-    animate={{ opacity: 1, y: 0, scale: 1 }}
-    transition={{ delay: 1.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-    className="hidden lg:block w-80 rounded-2xl overflow-hidden"
-    style={{
-      background: 'rgba(15,20,40,0.85)',
-      border: '1px solid rgba(99,102,241,0.3)',
-      backdropFilter: 'blur(20px)',
-      boxShadow: '0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset',
-    }}
-  >
-    <div className="px-5 py-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold tracking-wider uppercase" style={{ color: 'rgba(156,163,175,0.8)' }}>
-          SecureFlow · Risk Analysis
-        </span>
-        <span className="flex items-center gap-1.5 text-xs font-bold" style={{ color: '#F43F5E' }}>
-          <span className="w-1.5 h-1.5 rounded-full bg-[#F43F5E] animate-pulse" />
-          HIGH
-        </span>
-      </div>
-    </div>
-    <div className="px-5 py-4 flex flex-col gap-3">
-      <div className="flex justify-between items-center">
-        <span className="text-xs" style={{ color: 'rgba(156,163,175,0.6)' }}>Recipient</span>
-        <span className="text-sm font-semibold text-white">unknown@upi</span>
-      </div>
-      <div className="flex justify-between items-center">
-        <span className="text-xs" style={{ color: 'rgba(156,163,175,0.6)' }}>Amount</span>
-        <span className="text-sm font-bold" style={{ color: '#FBBF24' }}>₹ 49,999</span>
-      </div>
-      <div className="flex justify-between items-center">
-        <span className="text-xs" style={{ color: 'rgba(156,163,175,0.6)' }}>Remarks</span>
-        <span className="text-xs px-2 py-0.5 rounded-md font-medium" style={{ background: 'rgba(244,63,94,0.15)', color: '#F87171' }}>
-          "send OTP now"
-        </span>
-      </div>
-    </div>
-    <div className="px-5 pb-4">
-      <p className="text-xs mb-2.5 font-semibold uppercase tracking-widest" style={{ color: 'rgba(156,163,175,0.5)' }}>Risk Signals</p>
-      <div className="flex flex-col gap-2">
-        {[
-          { label: 'Keyword "OTP" detected',        weight: 92 },
-          { label: 'Unverified recipient',            weight: 78 },
-          { label: 'Amount > 10× avg transaction',   weight: 85 },
-          { label: 'Late-night transaction (11 PM)',  weight: 65 },
-        ].map((sig, i) => (
-          <div key={i}>
-            <div className="flex justify-between mb-1">
-              <span className="text-xs" style={{ color: 'rgba(156,163,175,0.7)' }}>{sig.label}</span>
-              <span className="text-xs font-bold" style={{ color: '#F43F5E' }}>{sig.weight}%</span>
-            </div>
-            <div className="h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${sig.weight}%` }}
-                transition={{ delay: 1.4 + i * 0.1, duration: 0.6, ease: 'easeOut' }}
-                className="h-1 rounded-full"
-                style={{ background: 'linear-gradient(90deg, #F43F5E, #F97316)' }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-    <div className="mx-4 mb-4 px-4 py-3 rounded-xl text-center" style={{ background: 'rgba(244,63,94,0.12)', border: '1px solid rgba(244,63,94,0.25)' }}>
-      <p className="text-sm font-bold" style={{ color: '#F43F5E' }}>Transaction Blocked</p>
-      <p className="text-xs mt-0.5" style={{ color: 'rgba(244,63,94,0.7)' }}>Scam indicators detected. We stopped it.</p>
-    </div>
-  </motion.div>
-);
-
 /* ─── Component ─────────────────────────────────────────────── */
 const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -194,15 +120,31 @@ const Landing: React.FC = () => {
       {/* ════════════ HERO ════════════ */}
       <section className="relative w-full min-h-[calc(100vh-64px)] flex flex-col items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <Silk speed={5} scale={1} color="#5227FF" noiseIntensity={1.5} rotation={0} />
+          <GridScan
+            sensitivity={0.55}
+            lineThickness={4}
+            linesColor="#11ff00"
+            scanColor="#a5ff9e"
+            scanOpacity={0.4}
+            gridScale={0.02}
+            lineStyle="solid"
+            lineJitter={0.04}
+            scanDirection="pingpong"
+            noiseIntensity={0.01}
+            scanGlow={0.1}
+            scanSoftness={1.2}
+            scanDuration={2}
+            scanDelay={2}
+            scanOnClick={false}
+          />
         </div>
         <div
           className="absolute inset-0 z-10 pointer-events-none"
           style={{ background: 'linear-gradient(to bottom, rgba(6,11,24,0.12) 0%, rgba(6,11,24,0.05) 45%, rgba(6,11,24,0.55) 80%, #060B18 100%)' }}
         />
 
-        <div className="relative z-20 w-full max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-24 py-20">
-          <div className="flex flex-col items-center lg:items-start text-center lg:text-left max-w-2xl">
+        <div className="relative z-20 w-full max-w-4xl mx-auto px-6 flex flex-col items-center text-center py-20">
+          <div className="flex flex-col items-center max-w-3xl">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -222,14 +164,14 @@ const Landing: React.FC = () => {
               animateBy="words"
               direction="top"
               stepDuration={0.4}
-              className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.02] tracking-tighter text-white justify-center lg:justify-start"
+              className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.02] tracking-tighter text-white justify-center"
             />
 
             <motion.div
               initial={{ opacity: 0, width: 0 }}
               animate={{ opacity: 1, width: '100%' }}
               transition={{ delay: 0.9, duration: 0.7 }}
-              className="mt-5 max-w-xs h-1 rounded-full lg:mx-0"
+              className="mt-5 max-w-xs h-1 rounded-full mx-auto"
               style={{ background: 'linear-gradient(90deg, #6366F1, #A855F7, #06B6D4)' }}
             />
 
@@ -248,7 +190,7 @@ const Landing: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.95, duration: 0.6 }}
-              className="mt-9 flex flex-col sm:flex-row items-center lg:items-start gap-3"
+              className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-3"
             >
               <button
                 onClick={() => navigate('/dashboard')}
@@ -275,7 +217,7 @@ const Landing: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.15, duration: 0.5 }}
-              className="mt-7 flex flex-wrap justify-center lg:justify-start gap-2"
+              className="mt-7 flex flex-wrap justify-center gap-2"
             >
               {['No login required', '3 risk levels', 'Real-time · <80ms', 'Open source'].map(t => (
                 <span
@@ -289,8 +231,6 @@ const Landing: React.FC = () => {
               ))}
             </motion.div>
           </div>
-
-          <MockTransactionCard />
         </div>
 
         <button
