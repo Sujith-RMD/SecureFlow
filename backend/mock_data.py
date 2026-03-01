@@ -143,7 +143,7 @@ def _seed():
                     },
                 ],
                 "recommendedAction": "WARN",
-                "friction": {"type": "MODAL", "delaySeconds": 5, "canOverride": True, "color": "yellow"},
+                "friction": {"type": "DELAY", "delaySeconds": 5, "canOverride": True, "color": "yellow"},
             },
         },
         {
@@ -175,7 +175,7 @@ def _seed():
                     },
                 ],
                 "recommendedAction": "WARN",
-                "friction": {"type": "MODAL", "delaySeconds": 5, "canOverride": True, "color": "yellow"},
+                "friction": {"type": "DELAY", "delaySeconds": 5, "canOverride": True, "color": "yellow"},
             },
         },
         # ── High-risk / blocked ──

@@ -4,7 +4,7 @@ from core.risk_engine import analyze_transaction, TOTAL_RULES
 from core.friction_engine import map_friction
 from core.stats_engine import calculate_dashboard_stats
 from mock_data import get_mock_history, add_transaction, reset_history, MOCK_USER
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 import time
 
@@ -98,7 +98,7 @@ def send(request: AnalyzeRequest):
         "recipientName": upi_user,
         "amount": request.amount,
         "remarks": request.remarks,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "status": status,
         "riskResult": risk_result,
     })
@@ -154,8 +154,8 @@ def health():
         "version": "1.2.0",
         "engines": {
             "risk":     {"rules": TOTAL_RULES, "status": "active"},
-            "friction": {"tiers": 3, "status": "active"},
+            "friction": {"tiers": 4, "status": "active"},
             "stats":    {"status": "active"},
         },
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
     }

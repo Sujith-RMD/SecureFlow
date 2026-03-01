@@ -7,7 +7,7 @@ export interface RiskReason {
 }
 
 export interface FrictionConfig {
-  type: "NONE" | "TOAST" | "MODAL" | "DELAY" | "BLOCK";
+  type: "NONE" | "TOAST" | "DELAY" | "BLOCK";
   delaySeconds: number;
   canOverride: boolean;
   color: "green" | "yellow" | "red";
@@ -17,7 +17,7 @@ export interface RiskResult {
   score: number;
   level: "LOW" | "MEDIUM" | "HIGH";
   reasons: RiskReason[];
-  recommendedAction: "ALLOW" | "WARN" | "DELAY" | "BLOCK";
+  recommendedAction: "ALLOW" | "WARN" | "BLOCK";
   friction: FrictionConfig;
   analysisTimeMs?: number;
   rulesEvaluated?: number;

@@ -494,9 +494,8 @@ const History: React.FC = () => {
                           className="font-black"
                           style={{
                             color:
-                              txn.riskResult.recommendedAction === 'BLOCK'  ? '#EF4444'
-                              : txn.riskResult.recommendedAction === 'DELAY' ? '#F59E0B'
-                              : txn.riskResult.recommendedAction === 'WARN'  ? '#F59E0B'
+                              txn.riskResult.recommendedAction === 'BLOCK' ? '#EF4444'
+                              : txn.riskResult.recommendedAction === 'WARN' ? '#F59E0B'
                               : '#00FF87',
                           }}
                         >

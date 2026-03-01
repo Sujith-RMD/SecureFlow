@@ -526,7 +526,7 @@ const SendMoney: React.FC = () => {
                             <p className="text-[11px] mt-0.5" style={{ color: P.textB }}>{r.description}</p>
                           </div>
                           <span className="shrink-0 text-xs font-mono font-bold" style={{ color: sev }}>
-                            +{r.scoreAdded}
+                            {r.scoreAdded >= 0 ? '+' : ''}{r.scoreAdded}
                           </span>
                         </div>
                       );
@@ -545,20 +545,6 @@ const SendMoney: React.FC = () => {
                     </p>
                   </div>
                   <CountdownBar seconds={risk.friction.delaySeconds} onDone={() => setCooldownDone(true)} />
-                </div>
-              )}
-
-              {/* Warning banner — only for MODAL (medium-risk) friction */}
-              {risk.friction.type === 'MODAL' && (
-                <div className="flex items-start gap-2.5 p-3 rounded-xl"
-                  style={{ background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.15)' }}>
-                  <span style={{ color: P.amber }}><IconWarning /></span>
-                  <div>
-                    <p className="text-xs font-bold" style={{ color: P.amber }}>Proceed with caution</p>
-                    <p className="text-[11px] mt-0.5" style={{ color: P.textB }}>
-                      Potential risk signals were detected. Double-check the recipient before confirming.
-                    </p>
-                  </div>
                 </div>
               )}
 
