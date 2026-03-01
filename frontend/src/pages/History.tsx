@@ -475,7 +475,7 @@ const History: React.FC = () => {
                                     className="ml-auto shrink-0 text-xs font-mono font-bold"
                                     style={{ color: sevStyle.color }}
                                   >
-                                    +{reason.scoreAdded}
+                                    {reason.scoreAdded >= 0 ? '+' : ''}{reason.scoreAdded}
                                   </span>
                                 </div>
                               );

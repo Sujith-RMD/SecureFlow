@@ -675,7 +675,7 @@ const SendMoney: React.FC = () => {
                         style={{ background: 'rgba(248,113,113,0.04)', border: '1px solid rgba(248,113,113,0.1)' }}>
                         <span className="font-bold" style={{ color: P.danger }}>•</span>
                         <span style={{ color: P.textH }}>{r.title}</span>
-                        <span className="ml-auto font-mono font-bold" style={{ color: P.danger }}>+{r.scoreAdded}</span>
+                        <span className="ml-auto font-mono font-bold" style={{ color: P.danger }}>{r.scoreAdded >= 0 ? '+' : ''}{r.scoreAdded}</span>
                       </div>
                     ))}
                   </div>

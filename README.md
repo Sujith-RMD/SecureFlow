@@ -97,15 +97,15 @@ India's UPI ecosystem processes **billions of transactions monthly**, but existi
 
 | # | Rule | What It Catches | Score |
 |---|------|----------------|-------|
-| 1 | **NEW_RECIPIENT** | First-ever payment to this UPI ID | +30 |
-| 2 | **UNUSUAL_AMOUNT** | Amount exceeds 3× user's average | +25 |
-| 3 | **HIGH_FREQUENCY** | 3+ transactions in the last 10 minutes | +20 |
-| 4 | **LARGE_ROUND_NUMBER** | ₹10,000+ round amounts (common in scams) | +15 |
-| 5 | **SCAM_KEYWORD** | 40+ keywords: "OTP", "KYC", "lottery", "urgent", etc. | +35 |
-| 6 | **BEHAVIORAL_SHIFT** | Amount exceeds 4× median historical spending | +40 |
-| 7 | **NIGHT_OWL** | Transactions between 11 PM and 5 AM (higher fraud window) | +15 |
-| 8 | **SUSPICIOUS_UPI** | UPI ID matches regex scam patterns ("lucky", "prize", "hack", etc.) | +25 |
-| 9 | **TRUSTED_CONTACT** | Recipient is in user's trusted contacts list (anti-rule) | −20 |
+| 1 | **NEW_RECIPIENT** | First-ever payment to this UPI ID | +20 |
+| 2 | **UNUSUAL_AMOUNT** | Amount exceeds 3× user's average | +15 |
+| 3 | **HIGH_FREQUENCY** | 3+ transactions in the last 10 minutes | +15 |
+| 4 | **LARGE_ROUND_NUMBER** | ₹10,000+ round amounts (common in scams) | +10 |
+| 5 | **SCAM_KEYWORD** | 40+ keywords: "OTP", "KYC", "lottery", "urgent", etc. | +25 |
+| 6 | **BEHAVIORAL_SHIFT** | Amount exceeds 4× median historical spending | +20 |
+| 7 | **NIGHT_OWL** | Transactions between 11 PM and 5 AM (higher fraud window) | +10 |
+| 8 | **SUSPICIOUS_UPI** | UPI ID matches regex scam patterns ("lucky", "prize", "hack", etc.) | +20 |
+| 9 | **TRUSTED_CONTACT** | Recipient is in user's trusted contacts list (anti-rule) | −15 |
 
 > Risk score is capped at **100** (min 0). Each rule contributes a percentage breakdown shown to the user. Rule 9 is an **anti-rule** that *reduces* the score for known trusted contacts.
 
@@ -234,11 +234,11 @@ curl -X POST http://localhost:5000/api/analyze \
   "score": 100,
   "level": "HIGH",
   "reasons": [
-    { "ruleId": "NEW_RECIPIENT", "title": "New Recipient Detected", "scoreAdded": 30 },
-    { "ruleId": "UNUSUAL_AMOUNT", "title": "Unusual Transaction Amount", "scoreAdded": 25 },
-    { "ruleId": "LARGE_ROUND_NUMBER", "title": "Large Round Number", "scoreAdded": 15 },
-    { "ruleId": "SCAM_KEYWORD", "title": "Suspicious Keyword Detected", "scoreAdded": 35 },
-    { "ruleId": "BEHAVIORAL_SHIFT", "title": "Behavioral Spending Shift", "scoreAdded": 40 }
+    { "ruleId": "NEW_RECIPIENT", "title": "New Recipient Detected", "scoreAdded": 20 },
+    { "ruleId": "UNUSUAL_AMOUNT", "title": "Unusual Transaction Amount", "scoreAdded": 15 },
+    { "ruleId": "LARGE_ROUND_NUMBER", "title": "Large Round Number", "scoreAdded": 10 },
+    { "ruleId": "SCAM_KEYWORD", "title": "Suspicious Keyword Detected", "scoreAdded": 25 },
+    { "ruleId": "BEHAVIORAL_SHIFT", "title": "Behavioral Spending Shift", "scoreAdded": 20 }
   ],
   "recommendedAction": "BLOCK",
   "friction": { "type": "BLOCK", "delaySeconds": 10, "canOverride": false, "color": "red" },
