@@ -7,7 +7,7 @@ export interface RiskReason {
 }
 
 export interface FrictionConfig {
-  type: "NONE" | "TOAST" | "MODAL" | "BLOCK";
+  type: "NONE" | "TOAST" | "MODAL" | "DELAY" | "BLOCK";
   delaySeconds: number;
   canOverride: boolean;
   color: "green" | "yellow" | "red";

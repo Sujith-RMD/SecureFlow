@@ -64,9 +64,9 @@ def send(request: AnalyzeRequest):
     risk_result = {
         "score": score,
         "level": level,
-        "reasons": [r.dict() for r in reasons],
+        "reasons": [r.model_dump() for r in reasons],
         "recommendedAction": action,
-        "friction": friction.dict(),
+        "friction": friction.model_dump(),
     }
 
     # Derive a display name from the UPI id

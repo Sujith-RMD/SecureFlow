@@ -1,7 +1,9 @@
 import axios from 'axios';
 import type { Transaction, User } from '../types';
 
-const BASE_URL = 'http://localhost:5000';
+// In dev, Vite proxies /api → localhost:5000 so BASE_URL can be empty.
+// In production, set VITE_API_BASE_URL to your deployed backend URL.
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
 const api = axios.create({
   baseURL: BASE_URL,
