@@ -373,8 +373,8 @@ const SendMoney: React.FC = () => {
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {[
-                    { label: '✅ Safe',   upi: 'alice@upi',       amt: '500',   rem: 'Dinner split',          col: P.accent },
-                    { label: '⚠️ Medium', upi: 'newuser@upi',     amt: '15000', rem: 'Urgent money',          col: P.amber },
+                    { label: '✅ Safe',   upi: 'rahul@okaxis',    amt: '500',   rem: 'Dinner split',          col: P.accent },
+                    { label: '⚠️ Medium', upi: 'newuser@upi',     amt: '10000', rem: 'Transfer payment',      col: P.amber },
                     { label: '🚫 Blocked', upi: 'fraud.shark@upi', amt: '50000', rem: 'Send to lottery prize', col: P.danger },
                   ].map(s => (
                     <button

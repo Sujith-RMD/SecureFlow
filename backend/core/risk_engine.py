@@ -63,26 +63,26 @@ def analyze_transaction(
     # ── RULE 1 — NEW_RECIPIENT ──────────────────────────────────
     is_new = not any(txn["recipientUPI"] == payload.recipientUPI for txn in history)
     if is_new:
-        score += 30
+        score += 20
         reasons.append(RiskReason(
             ruleId="NEW_RECIPIENT",
             title="New Recipient Detected",
             description="You have never paid this UPI ID before.",
             severity="MEDIUM",
-            scoreAdded=30
+            scoreAdded=20
         ))
 
     # ── RULE 2 — UNUSUAL_AMOUNT (3× average) ───────────────────
     if history:
         avg = sum(txn["amount"] for txn in history) / len(history)
         if payload.amount > avg * 3:
-            score += 25
+            score += 15
             reasons.append(RiskReason(
                 ruleId="UNUSUAL_AMOUNT",
                 title="Unusual Transaction Amount",
                 description=f"Amount (₹{payload.amount:,.0f}) exceeds 3× your average (₹{avg:,.0f}).",
                 severity="MEDIUM",
-                scoreAdded=25
+                scoreAdded=15
             ))
 
     # ── RULE 3 — HIGH_FREQUENCY (3+ in last 10 mins) ──────────
@@ -92,38 +92,38 @@ def analyze_transaction(
         if now - _parse_ts(txn["timestamp"]) <= timedelta(minutes=10)
     ]
     if len(recent) >= 3:
-        score += 20
+        score += 15
         reasons.append(RiskReason(
             ruleId="HIGH_FREQUENCY",
             title="High Transaction Frequency",
             description=f"{len(recent)} transactions in the last 10 minutes — potential rapid-fire fraud.",
             severity="MEDIUM",
-            scoreAdded=20
+            scoreAdded=15
         ))
 
     # ── RULE 4 — LARGE_ROUND_NUMBER ────────────────────────────
     if payload.amount >= 10000 and payload.amount % 10000 == 0:
-        score += 15
+        score += 10
         reasons.append(RiskReason(
             ruleId="LARGE_ROUND_NUMBER",
             title="Large Round Number",
             description="Large clean round amounts (₹10K+) are a common pattern in scam payments.",
             severity="LOW",
-            scoreAdded=15
+            scoreAdded=10
         ))
 
     # ── RULE 5 — SCAM_KEYWORD (with matched keyword details) ──
     matched_kws = _find_matched_keywords(payload.remarks)
     if matched_kws:
-        score += 35
-        kw_preview = ", ".join(f'"{k}"' for k in matched_kws[:3])
+        score += 25
+        kw_preview = ", ".join(f'"{ k}"' for k in matched_kws[:3])
         suffix = f" (+{len(matched_kws) - 3} more)" if len(matched_kws) > 3 else ""
         reasons.append(RiskReason(
             ruleId="SCAM_KEYWORD",
             title="Suspicious Keywords Detected",
             description=f"Remarks contain flagged terms: {kw_preview}{suffix}.",
             severity="HIGH",
-            scoreAdded=35
+            scoreAdded=25
         ))
 
     # ── RULE 6 — BEHAVIORAL_SHIFT (Median-based) ──────────────
@@ -137,44 +137,44 @@ def analyze_transaction(
             median = amounts[mid]
 
         if median > 0 and payload.amount > median * 4:
-            score += 40
+            score += 20
             reasons.append(RiskReason(
                 ruleId="BEHAVIORAL_SHIFT",
                 title="Behavioral Spending Shift",
                 description=f"Amount is {payload.amount / median:.1f}× your median spend (₹{median:,.0f}). Significant deviation detected.",
                 severity="HIGH",
-                scoreAdded=40
+                scoreAdded=20
             ))
 
     # ── RULE 7 — NIGHT_OWL (late-night transactions) ──────────
     hour = now.hour  # UTC
     ist_hour = (hour + 5) % 24  # rough IST conversion
     if ist_hour >= 23 or ist_hour < 5:
-        score += 15
+        score += 10
         reasons.append(RiskReason(
             ruleId="NIGHT_OWL",
             title="Late-Night Transaction",
             description=f"Payments between 11 PM – 5 AM carry higher fraud risk. Current IST hour: ~{ist_hour}:00.",
             severity="LOW",
-            scoreAdded=15
+            scoreAdded=10
         ))
 
     # ── RULE 8 — SUSPICIOUS_UPI (regex pattern check) ─────────
     upi_lower = payload.recipientUPI.lower()
     upi_flags = [p for p in SUSPICIOUS_UPI_PATTERNS if re.search(p, upi_lower)]
     if upi_flags:
-        score += 25
+        score += 20
         reasons.append(RiskReason(
             ruleId="SUSPICIOUS_UPI",
             title="Suspicious UPI ID Pattern",
             description="The recipient's UPI ID matches known fraudulent naming patterns.",
             severity="HIGH",
-            scoreAdded=25
+            scoreAdded=20
         ))
 
     # ── RULE 9 — TRUSTED_CONTACT (anti-rule: reduces score) ───
     if trusted_contacts and payload.recipientUPI in trusted_contacts:
-        reduction = min(score, 20)  # reduce up to 20 pts, never below 0
+        reduction = min(score, 15)  # reduce up to 15 pts, never below 0
         if reduction > 0:
             score -= reduction
             reasons.append(RiskReason(
