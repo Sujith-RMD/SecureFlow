@@ -1,5 +1,14 @@
 from typing import List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from collections import Counter
+
+def _parse_ts(ts: str) -> datetime:
+    """Parse an ISO timestamp (with optional Z suffix) into a UTC-aware datetime."""
+    cleaned = ts.replace("Z", "+00:00") if ts.endswith("Z") else ts
+    dt = datetime.fromisoformat(cleaned)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
 
 
 def calculate_dashboard_stats(history: List[dict]):
@@ -11,6 +20,11 @@ def calculate_dashboard_stats(history: List[dict]):
     safe_count = 0
     total_amount = 0
     score_sum = 0
+
+    # Track top triggered rules across all transactions
+    rule_counter: Counter = Counter()
+    # Track hourly transaction distribution
+    hourly_dist = [0] * 24
 
     for txn in history:
         risk = txn.get("riskResult")
@@ -35,6 +49,17 @@ def calculate_dashboard_stats(history: List[dict]):
             blocked_count += 1
             money_saved += amount
 
+        # Count rule triggers
+        for reason in risk.get("reasons", []):
+            rule_counter[reason.get("ruleId", "UNKNOWN")] += 1
+
+        # Hourly distribution
+        try:
+            dt = _parse_ts(txn.get("timestamp", ""))
+            hourly_dist[dt.hour] += 1
+        except Exception:
+            pass
+
     # Compute security score (inverse of average risk)
     avg_risk = (score_sum / total_transactions) if total_transactions > 0 else 0
     security_score = max(0, min(100, round(100 - avg_risk)))
@@ -49,8 +74,8 @@ def calculate_dashboard_stats(history: List[dict]):
         ts = txn.get("timestamp", "")
         # Calculate relative time
         try:
-            dt = datetime.fromisoformat(ts)
-            diff = datetime.utcnow() - dt
+            dt = _parse_ts(ts)
+            diff = datetime.now(timezone.utc) - dt
             if diff.total_seconds() < 60:
                 time_str = f"{int(diff.total_seconds())}s ago"
             elif diff.total_seconds() < 3600:
@@ -80,6 +105,18 @@ def calculate_dashboard_stats(history: List[dict]):
     med_pct = round(med_count / total_transactions * 100) if total_transactions else 0
     high_pct = 100 - low_pct - med_pct if total_transactions else 0
 
+    # Top triggered rules (for display)
+    top_rules = [
+        {"ruleId": rid, "count": cnt}
+        for rid, cnt in rule_counter.most_common(5)
+    ]
+
+    # Threat trend — scores over last N transactions (newest last)
+    threat_trend = [
+        txn.get("riskResult", {}).get("score", 0)
+        for txn in reversed(history[:12])
+    ]
+
     return {
         "totalTransactions": total_transactions,
         "flaggedCount": flagged_count,
@@ -96,4 +133,8 @@ def calculate_dashboard_stats(history: List[dict]):
             "medium": {"count": med_count, "pct": med_pct},
             "high": {"count": high_count, "pct": high_pct},
         },
+        "topRules": top_rules,
+        "threatTrend": threat_trend,
+        "hourlyDistribution": hourly_dist,
+        "rulesEvaluated": 9,
     }

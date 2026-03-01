@@ -62,6 +62,10 @@ export interface DashboardStats {
     medium: { count: number; pct: number };
     high:   { count: number; pct: number };
   };
+  topRules?: { ruleId: string; count: number }[];
+  threatTrend?: number[];
+  hourlyDistribution?: number[];
+  rulesEvaluated?: number;
 }
 
 export const getDashboardStats = async (): Promise<DashboardStats> => {

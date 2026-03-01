@@ -6,6 +6,12 @@
 <h3 align="center">Intent-Aware UPI Fraud Prevention — In Real Time</h3>
 
 <p align="center">
+  <a href="https://secure-floww.vercel.app">
+    <img src="https://img.shields.io/badge/🚀_Try_it_Live-00FF87?style=for-the-badge&logoColor=black" alt="Live Demo" />
+  </a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/React_18-61DAFB?style=flat-square&logo=react&logoColor=black" />
   <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" />
   <img src="https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white" />
@@ -44,7 +50,7 @@ India's UPI ecosystem processes **billions of transactions monthly**, but existi
 
 **SecureFlow** is a real-time, intent-aware fraud prevention layer that sits between the user and the payment confirmation. It:
 
-1. **Scores every transaction** against 6 behavioral + contextual rules in under 80ms
+1. **Scores every transaction** against 9 behavioral + contextual rules in under 80ms
 2. **Applies calibrated friction** — safe payments flow freely, risky ones get delays or blocks
 3. **Explains every decision** — no black boxes, every flag comes with a plain-English reason
 4. **Persists blocked attempts** — even intercepted transactions are logged for full audit trails
@@ -72,9 +78,11 @@ India's UPI ecosystem processes **billions of transactions monthly**, but existi
 │                                                             │
 │  ┌──────────────┐  ┌────────────────┐  ┌─────────────────┐ │
 │  │ Risk Engine  │  │ Friction Engine│  │  Stats Engine   │ │
-│  │ (6 Rules,    │  │ (3-Tier Gate:  │  │ (Security Score,│ │
-│  │  40+ Scam    │  │  TOAST → MODAL │  │  Trust Rate,    │ │
-│  │  Keywords)   │  │  → BLOCK)      │  │  Risk Distro)   │ │
+│  │ (9 Rules,    │  │ (4-Tier Gate:  │  │ (Security Score,│ │
+│  │  40+ Scam    │  │  NONE → TOAST  │  │  Trust Rate,    │ │
+│  │  Keywords)   │  │  → DELAY →     │  │  Top Rules,     │ │
+│  │              │  │  BLOCK)        │  │  Threat Trend,  │ │
+│  │              │  │                │  │  Hourly Dist.)  │ │
 │  └──────────────┘  └────────────────┘  └─────────────────┘ │
 │                                                             │
 │  ┌─────────────────────────────────────────────────────────┐│
@@ -85,7 +93,7 @@ India's UPI ecosystem processes **billions of transactions monthly**, but existi
 
 ---
 
-## 🔍 Risk Engine — 6 Detection Rules
+## 🔍 Risk Engine — 9 Detection Rules
 
 | # | Rule | What It Catches | Score |
 |---|------|----------------|-------|
@@ -95,18 +103,22 @@ India's UPI ecosystem processes **billions of transactions monthly**, but existi
 | 4 | **LARGE_ROUND_NUMBER** | ₹10,000+ round amounts (common in scams) | +15 |
 | 5 | **SCAM_KEYWORD** | 40+ keywords: "OTP", "KYC", "lottery", "urgent", etc. | +35 |
 | 6 | **BEHAVIORAL_SHIFT** | Amount exceeds 4× median historical spending | +40 |
+| 7 | **NIGHT_OWL** | Transactions between 11 PM and 5 AM (higher fraud window) | +15 |
+| 8 | **SUSPICIOUS_UPI** | UPI ID matches regex scam patterns ("lucky", "prize", "hack", etc.) | +25 |
+| 9 | **TRUSTED_CONTACT** | Recipient is in user's trusted contacts list (anti-rule) | −20 |
 
-> Risk score is capped at **100**. Each rule contributes a percentage breakdown shown to the user.
+> Risk score is capped at **100** (min 0). Each rule contributes a percentage breakdown shown to the user. Rule 9 is an **anti-rule** that *reduces* the score for known trusted contacts.
 
 ---
 
-## 🚦 Friction Engine — 3 Response Tiers
+## 🚦 Friction Engine — 4 Response Tiers
 
-| Risk Level | Score Range | Action | UX Response |
-|-----------|------------|--------|-------------|
-| 🟢 **LOW** | 0 – 30 | `ALLOW` | Silent toast — payment proceeds instantly |
-| 🟡 **MEDIUM** | 31 – 60 | `WARN` | Warning modal + 5s cooldown before confirm |
-| 🔴 **HIGH** | 61 – 100 | `BLOCK` | Transaction blocked — logged with full reason |
+| Risk Level | Score Range | Friction | UX Response |
+|-----------|------------|----------|-------------|
+| ⚪ **NONE** | 0 – 20 | `NONE` | Payment proceeds silently — no friction applied |
+| 🟢 **LOW** | 21 – 45 | `TOAST` | Subtle notification — payment continues after brief info toast |
+| 🟡 **MEDIUM** | 46 – 65 | `DELAY` | Warning + **5-second cooldown** before user can confirm |
+| 🔴 **HIGH** | 66 – 100 | `BLOCK` | Transaction blocked — logged with full reason |
 
 ---
 
@@ -119,23 +131,41 @@ India's UPI ecosystem processes **billions of transactions monthly**, but existi
 
 ### 📊 Dashboard
 - **Live security score** meter (0–100) derived from real transaction history
+- **Auto-refresh** every 15 seconds with "Updated Xs ago" live timestamp
 - Risk distribution breakdown (LOW / MEDIUM / HIGH percentages)
+- **Top Triggered Rules** widget — shows the 5 most-fired rules with bar charts
+- **Threat Trend** — color-coded bar chart of last 7 transactions (green/yellow/red)
+- **Hourly Activity** — 24-cell heatmap showing transaction distribution across hours
 - Recent transactions with risk badges and relative timestamps
 - Trust rate, flagged count, blocked count — all computed from actual data
+- Deterministic sparkline visualization (sine-wave, not random)
 
 ### 💸 Send Money (Multi-Step Flow)
-- **Step 1 — Form**: Recipient UPI (validated for `@`), amount, optional remarks
+- **Step 1 — Form**: Recipient UPI (validated for `@`), amount, optional remarks, **⚡ Demo Scenario buttons** for instant demo
 - **Step 2 — Analysis**: Real-time risk scoring with animated loading state
-- **Step 3 — Review**: Risk meter visualization, rule-by-rule breakdown with severity badges
-- **Step 4 — Result**: Success confirmation, or block screen with full explanation
-- Mandatory cooldown countdown for MEDIUM-risk (DELAY friction)
+- **Step 3 — Review**: Risk meter visualization, rule-by-rule breakdown with severity badges + **analysis speed badge** ("9 rules evaluated in <1ms")
+- **Step 4 — Result**: Success confirmation with pulse animation, or block screen with full explanation + **"View in History →"** link
+- Mandatory **5-second cooldown countdown** for MEDIUM-risk (DELAY friction)
+- **Keyboard submit** — press Enter to send from the form
 - Blocked transactions are persisted to history for audit
 
 ### 📜 Transaction History
 - Filterable tabs: **All · Safe · Flagged · Blocked**
 - Expandable risk detail panel per transaction
-- Search across recipients, amounts, and remarks
+- **Real-time search** across recipient name, UPI, amount, remarks, and transaction ID
+- Combined tab + search filtering
 - Sticky header with transaction counts per filter
+- **Auto-refresh** every 10 seconds for live updates
+
+### 🧩 App-Wide Enhancements
+- **Page transitions** — smooth fade + slide animations between pages (AnimatePresence)
+- **Error Boundary** — graceful error recovery with "Return Home" fallback screen
+- **404 page** — custom not-found page for invalid routes
+- **Custom scrollbar** — dark-themed scrollbar matching the design
+- **Selection color** — branded green text selection
+- **Focus-visible ring** — accessible keyboard navigation styling
+- **Document title** — "SecureFlow — UPI Fraud Prevention"
+- **Mobile nav** — backdrop overlay + scroll lock when menu is open
 
 ---
 
@@ -189,7 +219,7 @@ Open `http://localhost:3000` in your browser.
 | `GET` | `/api/user` | Current user profile and balance |
 | `GET` | `/api/dashboard-stats` | Aggregated metrics for the dashboard |
 | `POST` | `/api/reset` | Clear all history for a fresh start |
-| `GET` | `/api/health` | Backend status check |
+| `GET` | `/api/health` | Backend status + version + uptime + transaction count |
 
 ### Example — Analyze a Suspicious Transaction
 
@@ -211,11 +241,13 @@ curl -X POST http://localhost:5000/api/analyze \
     { "ruleId": "BEHAVIORAL_SHIFT", "title": "Behavioral Spending Shift", "scoreAdded": 40 }
   ],
   "recommendedAction": "BLOCK",
-  "friction": { "type": "BLOCK", "delaySeconds": 10, "canOverride": false, "color": "red" }
+  "friction": { "type": "BLOCK", "delaySeconds": 10, "canOverride": false, "color": "red" },
+  "analysisTimeMs": 0.74,
+  "rulesEvaluated": 9
 }
 ```
 
-> 5 out of 6 rules triggered → Score capped at 100 → **BLOCKED**
+> 5+ out of 9 rules triggered → Score capped at 100 → **BLOCKED**
 
 ---
 
@@ -224,20 +256,20 @@ curl -X POST http://localhost:5000/api/analyze \
 ```
 SecureFlow/
 ├── backend/
-│   ├── app.py                  # FastAPI app + CORS setup
+│   ├── app.py                  # FastAPI app + CORS + logging
 │   ├── routes.py               # All API endpoints (/api/*)
-│   ├── models.py               # Pydantic schemas
+│   ├── models.py               # Pydantic v2 schemas + validators
 │   ├── mock_data.py            # In-memory transaction store + seed data
 │   ├── requirements.txt
 │   └── core/
-│       ├── risk_engine.py      # 6-rule scoring engine (40+ scam keywords)
-│       ├── friction_engine.py  # 3-tier friction mapping
-│       └── stats_engine.py     # Dashboard metrics computation
+│       ├── risk_engine.py      # 9-rule scoring engine (40+ scam keywords)
+│       ├── friction_engine.py  # 4-tier friction mapping (NONE/TOAST/DELAY/BLOCK)
+│       └── stats_engine.py     # Dashboard metrics + threat trend + hourly dist
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── App.tsx             # React Router setup
-│   │   ├── main.tsx            # Entry point
+│   │   ├── App.tsx             # Router + ErrorBoundary + page transitions
+│   │   ├── main.tsx            # Entry point + document title
 │   │   ├── pages/
 │   │   │   ├── Landing.tsx     # Hero + features + CTA
 │   │   │   ├── Dashboard.tsx   # Live stats dashboard
@@ -245,9 +277,8 @@ SecureFlow/
 │   │   │   └── History.tsx     # Filterable transaction log
 │   │   ├── components/
 │   │   │   ├── GridScan.tsx    # Three.js 3D background
-│   │   │   ├── Navbar.tsx      # Navigation bar
-│   │   │   ├── RiskBadge.tsx   # Risk level pill
-│   │   │   └── FrictionModal.tsx
+│   │   │   ├── Navbar.tsx      # Navigation bar + mobile overlay
+│   │   │   └── RiskBadge.tsx   # Risk level pill
 │   │   ├── services/
 │   │   │   └── api.ts          # Axios API client
 │   │   └── types/
@@ -281,12 +312,15 @@ SecureFlow/
 
 Try these in the Send Money page to see different risk behaviors:
 
+Use the **⚡ Demo Scenarios** buttons on the Send Money page, or try manually:
+
 | Scenario | UPI | Amount | Remarks | Expected |
 |----------|-----|--------|---------|----------|
-| ✅ Safe payment | `rahul@okaxis` | ₹500 | Dinner split | **LOW** — instant allow |
-| ⚠️ Medium risk | `newperson@upi` | ₹15,000 | — | **MEDIUM** — warn + delay |
-| 🔴 Blocked | `unknown@scam` | ₹50,000 | urgent send money now | **HIGH** — blocked |
+| ✅ Safe payment | `alice@upi` | ₹500 | Dinner split | **LOW** — instant allow (trusted contact) |
+| ⚠️ Medium risk | `newuser@upi` | ₹15,000 | Urgent money | **MEDIUM** — warn + delay |
+| 🔴 Blocked | `fraud.shark@upi` | ₹50,000 | Send to lottery prize | **HIGH** — blocked (suspicious UPI + scam keyword) |
 | 🔴 Scam keyword | `random@upi` | ₹1,000 | send OTP for KYC | **HIGH** — blocked |
+| 🌙 Night owl | `newperson@upi` | ₹5,000 | — | +15 if sent between 11 PM – 5 AM |
 
 ---
 
@@ -295,11 +329,12 @@ Try these in the Send Money page to see different risk behaviors:
 | Traditional Systems | SecureFlow |
 |--------------------|-----------|
 | Post-transaction alerts | **Pre-transaction interception** |
-| Binary allow/block | **3-tier calibrated friction** |
+| Binary allow/block | **4-tier calibrated friction** |
 | No explanation given | **Rule-by-rule breakdown with percentages** |
-| Same UX for all risk levels | **Adaptive UX: toast → modal → block** |
+| Same UX for all risk levels | **Adaptive UX: none → toast → delay → block** |
 | No audit trail for blocks | **Blocked transactions persisted in history** |
-| Keyword blocklists only | **Behavioral + contextual + keyword analysis** |
+| Keyword blocklists only | **Behavioral + contextual + keyword + temporal analysis** |
+| No trusted contacts | **Anti-rules reduce score for known recipients** |
 
 ---
 

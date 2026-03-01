@@ -19,6 +19,8 @@ export interface RiskResult {
   reasons: RiskReason[];
   recommendedAction: "ALLOW" | "WARN" | "DELAY" | "BLOCK";
   friction: FrictionConfig;
+  analysisTimeMs?: number;
+  rulesEvaluated?: number;
 }
 
 export interface Transaction {

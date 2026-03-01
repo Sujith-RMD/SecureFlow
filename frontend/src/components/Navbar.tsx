@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 
 const ShieldLogo = () => (
@@ -41,6 +41,12 @@ const navLinks = [
 const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+
+  // Lock scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [menuOpen]);
 
   const activeCls = 'text-[#00FF87] border-b-2 border-[#00FF87] pb-0.5';
   const inactiveCls = 'text-[#5A8A70] hover:text-[#00FF87] transition-colors duration-150';
@@ -87,6 +93,15 @@ const Navbar: React.FC = () => {
           {menuOpen ? <CloseIcon /> : <MenuIcon />}
         </button>
       </nav>
+
+      {/* ── Mobile backdrop overlay ── */}
+      {menuOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-30 bg-black/50"
+          style={{ top: '64px' }}
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
 
       {/* ── Mobile drawer ── */}
       {menuOpen && (

@@ -2,7 +2,19 @@ from models import FrictionConfig
 
 def map_friction(score: int):
 
-    if score <= 30:
+    if score <= 20:
+        return (
+            "LOW",
+            "ALLOW",
+            FrictionConfig(
+                type="NONE",
+                delaySeconds=0,
+                canOverride=True,
+                color="green"
+            )
+        )
+
+    elif score <= 45:
         return (
             "LOW",
             "ALLOW",
@@ -14,12 +26,12 @@ def map_friction(score: int):
             )
         )
 
-    elif score <= 60:
+    elif score <= 65:
         return (
             "MEDIUM",
             "WARN",
             FrictionConfig(
-                type="MODAL",
+                type="DELAY",
                 delaySeconds=5,
                 canOverride=True,
                 color="yellow"

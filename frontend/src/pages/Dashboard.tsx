@@ -206,12 +206,20 @@ export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
-  useEffect(() => {
+  const fetchData = () => {
     getDashboardStats()
-      .then(setStats)
+      .then(d => { setStats(d); setLastRefresh(new Date()); })
       .catch(() => setError('Failed to load dashboard data. Is the backend running?'))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchData();
+    // Auto-refresh every 15 seconds for live feel
+    const interval = setInterval(fetchData, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   // Loading state
@@ -246,8 +254,14 @@ export default function Dashboard() {
 
   // Generate sparkline-like arrays from recent data
   const sparkTxns  = recentTransactions.map(t => t.amount).reverse();
-  const sparkRisk  = recentTransactions.map(t => t.score).reverse();
-  const sparkTrust = recentTransactions.map(() => trustRate + (Math.random() - 0.5) * 2).reverse();
+  const sparkRisk  = stats.threatTrend && stats.threatTrend.length > 0
+    ? stats.threatTrend
+    : recentTransactions.map(t => t.score).reverse();
+  const sparkTrust = recentTransactions.map((_, i) => {
+    const base = trustRate;
+    // Gentle deterministic wave instead of Math.random()
+    return base + Math.sin(i * 0.8) * 1.5;
+  }).reverse();
 
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -319,7 +333,12 @@ export default function Dashboard() {
                   style={{ background: 'rgba(52,211,153,0.08)', color: P.accent, border: `1px solid rgba(52,211,153,0.15)` }}>
                   {scoreLabel}
                 </span>
-                <span className="text-[10px] font-medium" style={{ color: P.textD }}>Updated just now</span>
+                <span className="text-[10px] font-medium" style={{ color: P.textD }}>
+                  Updated {lastRefresh ? (() => {
+                    const s = Math.round((Date.now() - lastRefresh.getTime()) / 1000);
+                    return s < 5 ? 'just now' : `${s}s ago`;
+                  })() : 'just now'}
+                </span>
               </div>
               <h2 className="text-2xl font-extrabold leading-snug" style={{ color: P.textH }}>
                 {securityScore >= 75 ? 'Your account is well protected' :
@@ -539,7 +558,7 @@ export default function Dashboard() {
               ))}
             </div>
 
-            {/* Engine health */}
+            {/* Top triggered rules + engine status */}
             <div
               className="rounded-2xl p-5 flex-1"
               style={{
@@ -550,35 +569,141 @@ export default function Dashboard() {
               }}
             >
               <h2 className="text-xs font-bold uppercase tracking-[0.16em] mb-4" style={{ color: P.textB }}>
-                Engine Health
+                Top Triggered Rules
               </h2>
-              {[
-                { key: 'Risk Engine',    latency: '2ms',  uptime: '99.99%' },
-                { key: 'Friction Layer', latency: '1ms',  uptime: '99.99%' },
-                { key: 'ML Classifier',  latency: '14ms', uptime: '99.97%' },
-                { key: 'Stats Engine',   latency: '3ms',  uptime: '99.99%' },
-              ].map(s => (
-                <div
-                  key={s.key}
-                  className="flex items-center justify-between py-2.5 border-b last:border-0"
-                  style={{ borderColor: P.border }}
-                >
-                  <div>
-                    <p className="text-[12px] font-semibold" style={{ color: P.textB }}>{s.key}</p>
-                    <p className="text-[10px] font-mono mt-0.5" style={{ color: P.textD }}>
-                      {s.latency} · {s.uptime}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="animate-[ping_3s_ease-in-out_infinite] absolute inline-flex h-full w-full rounded-full opacity-40" style={{ background: P.accent }} />
-                      <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: P.accent }} />
+              {(stats.topRules && stats.topRules.length > 0) ? stats.topRules.map((rule, i) => {
+                const ruleNames: Record<string, string> = {
+                  NEW_RECIPIENT: 'New Recipient',
+                  UNUSUAL_AMOUNT: 'Unusual Amount',
+                  HIGH_FREQUENCY: 'High Frequency',
+                  LARGE_ROUND_NUMBER: 'Large Round Number',
+                  SCAM_KEYWORD: 'Scam Keyword',
+                  BEHAVIORAL_SHIFT: 'Behavioral Shift',
+                  NIGHT_OWL: 'Night Owl',
+                  SUSPICIOUS_UPI: 'Suspicious UPI',
+                  TRUSTED_CONTACT: 'Trusted Contact',
+                };
+                const maxCount = stats.topRules?.[0]?.count ?? 1;
+                const barPct = Math.max(8, (rule.count / maxCount) * 100);
+                const ruleCol = rule.ruleId === 'SCAM_KEYWORD' || rule.ruleId === 'BEHAVIORAL_SHIFT' || rule.ruleId === 'SUSPICIOUS_UPI'
+                  ? P.danger
+                  : rule.ruleId === 'TRUSTED_CONTACT' ? P.accent : '#E2A336';
+                return (
+                  <div
+                    key={rule.ruleId}
+                    className="flex items-center justify-between py-2.5 border-b last:border-0"
+                    style={{ borderColor: P.border }}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold truncate" style={{ color: P.textB }}>
+                        {ruleNames[rule.ruleId] ?? rule.ruleId}
+                      </p>
+                      <div className="mt-1.5 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(52,211,153,0.06)' }}>
+                        <div className="h-full rounded-full transition-all duration-700"
+                          style={{ width: `${barPct}%`, background: ruleCol, boxShadow: `0 0 4px ${ruleCol}30` }} />
+                      </div>
+                    </div>
+                    <span className="ml-3 text-sm font-black tabular-nums shrink-0" style={{ color: ruleCol }}>
+                      {rule.count}
                     </span>
-                    <span className="text-[10px] font-bold" style={{ color: P.accent }}>OK</span>
                   </div>
+                );
+              }) : (
+                <p className="text-sm py-4 text-center" style={{ color: P.textM }}>No rules triggered yet.</p>
+              )}
+
+              {/* Engine status footer */}
+              <div className="mt-4 pt-3 border-t flex items-center justify-between" style={{ borderColor: P.border }}>
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-[ping_3s_ease-in-out_infinite] absolute inline-flex h-full w-full rounded-full opacity-40" style={{ background: P.accent }} />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: P.accent }} />
+                  </span>
+                  <span className="text-[10px] font-bold" style={{ color: P.accent }}>ENGINE ACTIVE</span>
                 </div>
-              ))}
+                <span className="text-[10px] font-mono" style={{ color: P.textD }}>
+                  {stats.rulesEvaluated ?? 9} rules · 4 tiers
+                </span>
+              </div>
             </div>
+
+            {/* Threat Trend mini-chart */}
+            {stats.threatTrend && stats.threatTrend.length > 1 && (
+              <div
+                className="rounded-2xl p-5"
+                style={{
+                  background: P.card,
+                  backdropFilter: P.glass,
+                  border: `1px solid ${P.border}`,
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.015)',
+                }}
+              >
+                <h2 className="text-xs font-bold uppercase tracking-[0.16em] mb-3" style={{ color: P.textB }}>
+                  Threat Trend
+                </h2>
+                <div className="flex items-end gap-[3px] h-12">
+                  {stats.threatTrend.map((s, i) => {
+                    const max = Math.max(...(stats.threatTrend ?? [1]));
+                    const h = Math.max(4, (s / Math.max(max, 1)) * 48);
+                    const c = s > 60 ? P.danger : s > 30 ? '#E2A336' : P.accent;
+                    return (
+                      <div
+                        key={i}
+                        className="flex-1 rounded-sm transition-all duration-500"
+                        style={{ height: h, background: c, opacity: 0.7 + (i / stats.threatTrend!.length) * 0.3 }}
+                        title={`Score: ${s}`}
+                      />
+                    );
+                  })}
+                </div>
+                <p className="text-[10px] font-mono mt-2" style={{ color: P.textD }}>
+                  Last {stats.threatTrend.length} transactions
+                </p>
+              </div>
+            )}
+
+            {/* Hourly Activity Heatmap */}
+            {stats.hourlyDistribution && (
+              <div
+                className="rounded-2xl p-5"
+                style={{
+                  background: P.card,
+                  backdropFilter: P.glass,
+                  border: `1px solid ${P.border}`,
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.015)',
+                }}
+              >
+                <h2 className="text-xs font-bold uppercase tracking-[0.16em] mb-3" style={{ color: P.textB }}>
+                  Hourly Activity
+                </h2>
+                <div className="grid grid-cols-12 gap-1">
+                  {stats.hourlyDistribution.map((count, h) => {
+                    const max = Math.max(...(stats.hourlyDistribution ?? [1]), 1);
+                    const intensity = count / max;
+                    return (
+                      <div
+                        key={h}
+                        className="aspect-square rounded-sm transition-all duration-300"
+                        style={{
+                          background: count === 0
+                            ? 'rgba(52,211,153,0.03)'
+                            : `rgba(52,211,153,${0.1 + intensity * 0.6})`,
+                          border: `1px solid rgba(52,211,153,${0.02 + intensity * 0.1})`,
+                        }}
+                        title={`${h}:00 — ${count} txn${count !== 1 ? 's' : ''}`}
+                      />
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between mt-2 text-[9px] font-mono" style={{ color: P.textD }}>
+                  <span>0h</span>
+                  <span>6h</span>
+                  <span>12h</span>
+                  <span>18h</span>
+                  <span>23h</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

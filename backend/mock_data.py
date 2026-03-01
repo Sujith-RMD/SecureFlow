@@ -18,6 +18,9 @@ def _seed():
 
     now = datetime.utcnow()
 
+    def _ts(dt):
+        return dt.isoformat() + "Z"
+
     seed_data = [
         # ── Low-risk, everyday payments ──
         {
@@ -25,7 +28,7 @@ def _seed():
             "recipientName": "Rahul Sharma",
             "amount": 500,
             "remarks": "Tea money",
-            "timestamp": (now - timedelta(minutes=8)).isoformat(),
+            "timestamp": _ts(now - timedelta(minutes=8)),
             "status": "completed",
             "riskResult": {
                 "score": 5,
@@ -40,7 +43,7 @@ def _seed():
             "recipientName": "Priya Menon",
             "amount": 800,
             "remarks": "Lunch split",
-            "timestamp": (now - timedelta(minutes=25)).isoformat(),
+            "timestamp": _ts(now - timedelta(minutes=25)),
             "status": "completed",
             "riskResult": {
                 "score": 8,
@@ -55,7 +58,7 @@ def _seed():
             "recipientName": "Rahul Sharma",
             "amount": 2500,
             "remarks": "Birthday gift",
-            "timestamp": (now - timedelta(hours=1)).isoformat(),
+            "timestamp": _ts(now - timedelta(hours=1)),
             "status": "completed",
             "riskResult": {
                 "score": 12,
@@ -70,7 +73,7 @@ def _seed():
             "recipientName": "Ankit Verma",
             "amount": 1200,
             "remarks": "Cab fare",
-            "timestamp": (now - timedelta(hours=2)).isoformat(),
+            "timestamp": _ts(now - timedelta(hours=2)),
             "status": "completed",
             "riskResult": {
                 "score": 10,
@@ -85,7 +88,7 @@ def _seed():
             "recipientName": "HDFC Merchant",
             "amount": 3000,
             "remarks": "Online order",
-            "timestamp": (now - timedelta(hours=3)).isoformat(),
+            "timestamp": _ts(now - timedelta(hours=3)),
             "status": "completed",
             "riskResult": {
                 "score": 18,
@@ -100,7 +103,7 @@ def _seed():
             "recipientName": "Priya Menon",
             "amount": 450,
             "remarks": "Coffee",
-            "timestamp": (now - timedelta(hours=5)).isoformat(),
+            "timestamp": _ts(now - timedelta(hours=5)),
             "status": "completed",
             "riskResult": {
                 "score": 4,
@@ -116,7 +119,7 @@ def _seed():
             "recipientName": "Unknown Contact",
             "amount": 8000,
             "remarks": "Freelance work",
-            "timestamp": (now - timedelta(hours=6)).isoformat(),
+            "timestamp": _ts(now - timedelta(hours=6)),
             "status": "completed",
             "riskResult": {
                 "score": 48,
@@ -148,7 +151,7 @@ def _seed():
             "recipientName": "New Contact",
             "amount": 12000,
             "remarks": "Rent share",
-            "timestamp": (now - timedelta(hours=10)).isoformat(),
+            "timestamp": _ts(now - timedelta(hours=10)),
             "status": "completed",
             "riskResult": {
                 "score": 54,
@@ -181,7 +184,7 @@ def _seed():
             "recipientName": "Scam Suspect",
             "amount": 50000,
             "remarks": "Claim your prize now",
-            "timestamp": (now - timedelta(days=1)).isoformat(),
+            "timestamp": _ts(now - timedelta(days=1)),
             "status": "blocked",
             "riskResult": {
                 "score": 100,
@@ -221,7 +224,7 @@ def _seed():
             "recipientName": "Unknown",
             "amount": 25000,
             "remarks": "Urgent payment needed",
-            "timestamp": (now - timedelta(days=2)).isoformat(),
+            "timestamp": _ts(now - timedelta(days=2)),
             "status": "blocked",
             "riskResult": {
                 "score": 95,
@@ -262,7 +265,7 @@ def _seed():
             "recipientName": "Rahul Sharma",
             "amount": 350,
             "remarks": "Snacks",
-            "timestamp": (now - timedelta(days=3)).isoformat(),
+            "timestamp": _ts(now - timedelta(days=3)),
             "status": "completed",
             "riskResult": {
                 "score": 3,
@@ -277,7 +280,7 @@ def _seed():
             "recipientName": "Ankit Verma",
             "amount": 2000,
             "remarks": "Gym subscription",
-            "timestamp": (now - timedelta(days=4)).isoformat(),
+            "timestamp": _ts(now - timedelta(days=4)),
             "status": "completed",
             "riskResult": {
                 "score": 7,
@@ -292,7 +295,7 @@ def _seed():
             "recipientName": "HDFC Merchant",
             "amount": 5500,
             "remarks": "Electronics",
-            "timestamp": (now - timedelta(days=5)).isoformat(),
+            "timestamp": _ts(now - timedelta(days=5)),
             "status": "completed",
             "riskResult": {
                 "score": 15,
@@ -307,7 +310,7 @@ def _seed():
             "recipientName": "Priya Menon",
             "amount": 600,
             "remarks": "Movie tickets",
-            "timestamp": (now - timedelta(days=6)).isoformat(),
+            "timestamp": _ts(now - timedelta(days=6)),
             "status": "completed",
             "riskResult": {
                 "score": 6,
@@ -322,7 +325,7 @@ def _seed():
             "recipientName": "Rahul Sharma",
             "amount": 1500,
             "remarks": "Dinner",
-            "timestamp": (now - timedelta(days=7)).isoformat(),
+            "timestamp": _ts(now - timedelta(days=7)),
             "status": "completed",
             "riskResult": {
                 "score": 9,

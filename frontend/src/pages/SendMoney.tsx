@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { analyzeTransaction, sendTransaction } from '../services/api';
 import type { RiskResult } from '../types';
 
@@ -157,6 +158,7 @@ const Card: React.FC<{ children: React.ReactNode; maxW?: string }> = ({ children
    MAIN COMPONENT
 ═══════════════════════════════════════════════════ */
 const SendMoney: React.FC = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState<Step>('form');
   const [upi, setUpi] = useState('');
   const [amount, setAmount] = useState('');
@@ -292,7 +294,7 @@ const SendMoney: React.FC = () => {
         ══════════════════════════════════════════ */}
         {step === 'form' && (
           <Card>
-            <div className="flex flex-col gap-5">
+            <form onSubmit={e => { e.preventDefault(); handleAnalyze(); }} className="flex flex-col gap-5">
               {/* Recipient */}
               <div>
                 <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.2em] mb-2" style={{ color: P.textM }}>
@@ -364,6 +366,34 @@ const SendMoney: React.FC = () => {
                 />
               </div>
 
+              {/* Quick-fill test scenarios */}
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] mb-2" style={{ color: P.textM }}>
+                  ⚡ Demo Scenarios
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { label: '✅ Safe',   upi: 'alice@upi',       amt: '500',   rem: 'Dinner split',          col: P.accent },
+                    { label: '⚠️ Medium', upi: 'newuser@upi',     amt: '15000', rem: 'Urgent money',          col: P.amber },
+                    { label: '🚫 Blocked', upi: 'fraud.shark@upi', amt: '50000', rem: 'Send to lottery prize', col: P.danger },
+                  ].map(s => (
+                    <button
+                      key={s.label}
+                      type="button"
+                      onClick={() => { setUpi(s.upi); setAmount(s.amt); setRemarks(s.rem); setError(''); }}
+                      className="px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all duration-150 hover:scale-[1.04] active:scale-[0.97]"
+                      style={{
+                        background: `${s.col}10`,
+                        border: `1px solid ${s.col}30`,
+                        color: s.col,
+                      }}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Error */}
               {error && (
                 <div className="flex items-center gap-2 p-3 rounded-lg text-xs font-medium"
@@ -390,7 +420,7 @@ const SendMoney: React.FC = () => {
               <p className="text-center text-[10px]" style={{ color: P.textM }}>
                 Transaction will be analyzed for fraud before processing
               </p>
-            </div>
+            </form>
           </Card>
         )}
 
@@ -456,6 +486,12 @@ const SendMoney: React.FC = () => {
                     {risk.level === 'MEDIUM' && 'Some risk signals detected. Please review.'}
                     {risk.level === 'HIGH' && 'High risk detected. Transaction requires caution.'}
                   </p>
+                  {/* Analysis speed badge */}
+                  {risk.analysisTimeMs != null && (
+                    <p className="text-[10px] font-mono mt-1" style={{ color: P.textM }}>
+                      {risk.rulesEvaluated ?? 9} rules evaluated in {risk.analysisTimeMs}ms
+                    </p>
+                  )}
                   <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black"
                     style={{
                       color: risk.level === 'LOW' ? P.accent : risk.level === 'MEDIUM' ? P.amber : P.danger,
@@ -573,7 +609,7 @@ const SendMoney: React.FC = () => {
         {step === 'success' && (
           <Card>
             <div className="flex flex-col items-center gap-5 py-8">
-              <div className="w-20 h-20 rounded-full flex items-center justify-center"
+              <div className="w-20 h-20 rounded-full flex items-center justify-center animate-[pulse_2s_ease-in-out_1]"
                 style={{ background: 'rgba(0,255,135,0.08)', border: `2px solid ${P.accent}40`, color: P.accent }}>
                 <IconCheck />
               </div>
@@ -612,6 +648,13 @@ const SendMoney: React.FC = () => {
                 }}
               >
                 Send Another
+              </button>
+              <button
+                onClick={() => navigate('/history')}
+                className="w-full py-2.5 rounded-xl text-xs font-semibold transition-all hover:scale-[1.01] active:scale-[0.99]"
+                style={{ color: P.textB, background: 'rgba(0,255,135,0.04)', border: `1px solid ${P.border}` }}
+              >
+                View in History →
               </button>
             </div>
           </Card>
@@ -659,6 +702,13 @@ const SendMoney: React.FC = () => {
                 style={{ background: 'rgba(0,255,135,0.06)', border: `1px solid ${P.borderHi}`, color: P.textH }}
               >
                 Go Back
+              </button>
+              <button
+                onClick={() => navigate('/history')}
+                className="w-full py-2.5 rounded-xl text-xs font-semibold transition-all hover:scale-[1.01] active:scale-[0.99]"
+                style={{ color: P.textB, background: 'rgba(248,113,113,0.04)', border: '1px solid rgba(248,113,113,0.1)' }}
+              >
+                View in History →
               </button>
             </div>
           </Card>

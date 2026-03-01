@@ -88,18 +88,37 @@ const History: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<FilterTab>('all');
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
-    getHistory()
-      .then(setTransactions)
-      .catch(() => setError('Failed to load transaction history. Is the backend running?'))
-      .finally(() => setLoading(false));
+    const fetchData = () => {
+      getHistory()
+        .then(setTransactions)
+        .catch(() => setError('Failed to load transaction history. Is the backend running?'))
+        .finally(() => setLoading(false));
+    };
+    fetchData();
+    const interval = setInterval(fetchData, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const filtered = transactions.filter((t) => {
-    if (tab === 'safe')    return t.riskResult.level === 'LOW';
-    if (tab === 'flagged') return t.riskResult.level === 'MEDIUM';
-    if (tab === 'blocked') return t.status === 'blocked' || t.riskResult.level === 'HIGH';
+    // Tab filter
+    if (tab === 'safe'    && t.riskResult.level !== 'LOW') return false;
+    if (tab === 'flagged' && t.riskResult.level !== 'MEDIUM') return false;
+    if (tab === 'blocked' && t.status !== 'blocked' && t.riskResult.level !== 'HIGH') return false;
+
+    // Search filter
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      const matchesName = t.recipientName.toLowerCase().includes(q);
+      const matchesUPI = t.recipientUPI.toLowerCase().includes(q);
+      const matchesAmount = t.amount.toString().includes(q);
+      const matchesRemarks = t.remarks?.toLowerCase().includes(q);
+      const matchesId = t.id.toLowerCase().includes(q);
+      if (!matchesName && !matchesUPI && !matchesAmount && !matchesRemarks && !matchesId) return false;
+    }
+
     return true;
   });
 
@@ -144,36 +163,70 @@ const History: React.FC = () => {
             </p>
           </div>
 
-          {/* Filter tabs */}
-          <div className="flex flex-wrap gap-1.5">
-            {TABS.map(({ key, label }) => {
-              const active = tab === key;
-              return (
-                <button
-                  key={key}
-                  onClick={() => setTab(key)}
-                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-150"
-                  style={{
-                    background: active ? 'rgba(0,255,135,0.12)' : 'transparent',
-                    color: active ? '#00FF87' : 'rgba(0,255,135,0.38)',
-                    border: active
-                      ? '1px solid rgba(0,255,135,0.3)'
-                      : '1px solid rgba(0,255,135,0.07)',
-                  }}
-                >
-                  {label}
-                  <span
-                    className="text-[10px] px-1.5 py-0.5 rounded-full font-black"
+          {/* Filter tabs + search */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex flex-wrap gap-1.5">
+              {TABS.map(({ key, label }) => {
+                const active = tab === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setTab(key)}
+                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-150"
                     style={{
-                      background: active ? 'rgba(0,255,135,0.15)' : 'rgba(0,255,135,0.05)',
-                      color: active ? '#00FF87' : 'rgba(0,255,135,0.3)',
+                      background: active ? 'rgba(0,255,135,0.12)' : 'transparent',
+                      color: active ? '#00FF87' : 'rgba(0,255,135,0.38)',
+                      border: active
+                        ? '1px solid rgba(0,255,135,0.3)'
+                        : '1px solid rgba(0,255,135,0.07)',
                     }}
                   >
-                    {counts[key]}
-                  </span>
+                    {label}
+                    <span
+                      className="text-[10px] px-1.5 py-0.5 rounded-full font-black"
+                      style={{
+                        background: active ? 'rgba(0,255,135,0.15)' : 'rgba(0,255,135,0.05)',
+                        color: active ? '#00FF87' : 'rgba(0,255,135,0.3)',
+                      }}
+                    >
+                      {counts[key]}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Search */}
+            <div className="relative sm:ml-auto">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'rgba(0,255,135,0.3)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search by name, UPI, amount…"
+                className="pl-9 pr-8 py-2 rounded-lg text-xs font-medium outline-none transition-all w-full sm:w-64"
+                style={{
+                  background: 'rgba(0,255,135,0.04)',
+                  border: '1px solid rgba(0,255,135,0.08)',
+                  color: '#E8FFF1',
+                  caretColor: '#00FF87',
+                }}
+                onFocus={e => e.currentTarget.style.borderColor = 'rgba(0,255,135,0.25)'}
+                onBlur={e => e.currentTarget.style.borderColor = 'rgba(0,255,135,0.08)'}
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold px-1.5 py-0.5 rounded"
+                  style={{ color: 'rgba(0,255,135,0.5)', background: 'rgba(0,255,135,0.06)' }}
+                >
+                  ✕
                 </button>
-              );
-            })}
+              )}
+            </div>
           </div>
         </div>
       </div>
