@@ -33,9 +33,9 @@ const RiskBadge: React.FC<RiskBadgeProps> = ({ level, score }) => {
   const cfg = levelConfig[level];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${cfg.bg} ${cfg.border} ${cfg.text}`}
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap ${cfg.bg} ${cfg.border} ${cfg.text}`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${cfg.dot}`} />
       {cfg.label}
       {score !== undefined && (
         <span className="opacity-70">· {score}</span>
