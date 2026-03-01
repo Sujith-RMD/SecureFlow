@@ -21,7 +21,17 @@
 
 ---
 
-## 📌 The Problem
+## � About
+
+**SecureFlow** is a real-time UPI fraud prevention system that acts as an intelligent security layer between users and their payments. Unlike traditional fraud detection that alerts users *after* the damage is done, SecureFlow analyzes every transaction *before* confirmation — evaluating recipient trust, spending behavior, transaction patterns, and message semantics to assign a risk score in under 80ms.
+
+Based on the risk score, SecureFlow applies **calibrated friction** — safe payments go through instantly, suspicious ones trigger warnings with cooldown periods, and high-risk transactions are blocked entirely. Every decision is fully transparent: users see exactly which rules fired, how much each contributed to the score, and why the system intervened.
+
+Built as a full-stack web application with a React + TypeScript frontend and a FastAPI Python backend, SecureFlow demonstrates how intelligent UX design combined with rule-based behavioral analysis can prevent fraud without degrading the payment experience for legitimate users.
+
+---
+
+## �📌 The Problem
 
 India's UPI ecosystem processes **billions of transactions monthly**, but existing fraud detection is reactive — users discover losses *after* the money is gone. Current systems:
 
@@ -295,7 +305,13 @@ Try these in the Send Money page to see different risk behaviors:
 
 ## 👥 Team
 
-Built with ❤️ for safer digital payments.
+Built with ❤️ by:
+
+| Name | GitHub |
+|------|--------|
+| **Sujith** | [@Sujith-RMD](https://github.com/Sujith-RMD) |
+| **Abdul Fattah** | [@hydralgorithm](https://github.com/hydralgorithm) |
+| **Vaibhav** | [@vaibhavyadavvv2007-ai](https://github.com/vaibhavyadavvv2007-ai) |
 
 ---
 
